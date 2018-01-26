@@ -6,7 +6,7 @@ np.set_printoptions(threshold=np.nan, linewidth=200)
 
 class IncidenceMatrix:
     def __init__(self, d: Dictionary):
-        self._matrix = np.zeros((len(d), len(d.all_documents())), dtype=np.uint8)
+        self._matrix = [[i for i in range(d.docs_cnt())] for w in range(len(d))]
         self._words: List[str] = []
         for i, item in enumerate(d):
             word, doc_ids = item
@@ -15,8 +15,7 @@ class IncidenceMatrix:
                 self._matrix[i][j] = 1
 
     def __str__(self):
-        shape = self._matrix.shape
-        return f'{shape}\n{str(self._matrix)}'
+        return str(self._matrix)
 
     def __len__(self):
         return len(self._matrix)

@@ -2,18 +2,20 @@ class Dictionary:
     def __init__(self):
         super().__init__()
         self._d = dict()
-        self._size = 0
-        self._documents = set()
+        self._docs_cnt = 0
 
     def add_word(self, w: str, ind: int):
+        w = w.capitalize()
         s = self._d[w] = self._d.get(w, set())
         s.add(ind)
-        self._documents.add(ind)
-        self._size = len(self._d)
+        self._docs_cnt = max(self._docs_cnt, ind+1)
         return self
 
-    def all_documents(self):
-        return sorted(self._documents)
+    def get_ids(self, word: str) -> set:
+        return self._d.get(word.capitalize(), set())
+
+    def docs_cnt(self):
+        return self._docs_cnt
 
     def __contains__(self, item):
         return item in self._d
@@ -22,7 +24,7 @@ class Dictionary:
         return iter(self._d.items())
 
     def __len__(self):
-        return self._size
+        return len(self._d)
 
     def __sizeof__(self):
         return self._d.__sizeof__()
@@ -31,7 +33,7 @@ class Dictionary:
         printables = []
         for i, item in enumerate(self._d.items()):
             word, indexes = item
-            to_print = f'{word}: {sorted(indexes)}'
-            length = len(to_print)
-            printables.append(to_print + ' ' * (65 - length) + ('\n' if i % 3 == 2 else ''))
+            info = f'in {len(indexes)} pars.'
+            printables.append('<| ' + word + ' ' * (30 - len(word)) + info + ' |>' + ' ' * (30 - len(info)) +
+                              ('\n' if i % 3 == 2 else ''))
         return ''.join(printables)
