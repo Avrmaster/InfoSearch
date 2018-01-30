@@ -1,3 +1,18 @@
+from optimized.collections import LongLinkedSet
+from random import randint as rint
+from datetime import datetime
+
+
+start = datetime.now()
+s = LongLinkedSet()
+for i in range(100000):
+    s.add(rint(0, 20000))
+end = datetime.now()
+res = s.get_all()
+res_sorted = all(res[i] <= res[i+1] for i in range(len(res)-1))
+print(f"{len(res)} unique values (sorted={res_sorted}) in {(end-start).total_seconds()} seconds")
+
+
 class Dictionary:
     def __init__(self):
         super().__init__()

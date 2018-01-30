@@ -1,10 +1,13 @@
+import os; os.system("python optimized_build.py build_ext --inplace")
 from dictionary import Dictionary
-from search import BooleanSearch
+from booleanSearch import BooleanSearch
 import os
 import re
 import sys
 from cachetools import cached, LFUCache
 
+while True:
+    pass
 
 dictionary = Dictionary()
 split_ex = re.compile(r"[^a-zа-я'-]+", flags=re.IGNORECASE)
@@ -14,7 +17,6 @@ docs_list = os.listdir('documents/txt')
 total_size = sum([os.path.getsize(f'documents/txt/{f}') for f in docs_list])
 read_size = 0
 words_cnt = 0
-
 
 paragraphs_map = []
 for doc_id, filename in enumerate(docs_list):
@@ -29,19 +31,15 @@ for doc_id, filename in enumerate(docs_list):
             paragraphs_map.append((filepath, line_num))
 
     read_size += os.path.getsize(filepath)
-    print(f'\rReading{"."*(doc_id%3)}{" "*(3-doc_id%3)}{(read_size*100)//total_size}% {doc_id+1}/{len(docs_list)}',
-          end='')
+    print(f'\rReading{"."*(doc_id%3)}{" "*(3-doc_id%3)}{(read_size*100)//total_size}% {doc_id+1}/{len(docs_list)} - '
+          f'{filename}', end='')
 print()
 
-# it's just taking too long
-# im = IncidenceMatrix(dictionary)
-# print(im, end='\n\n')
 print(dictionary, end='\n\n')
-print(f"Total paragraph count")
+print(f"Total paragraph count: {len(paragraphs_map)}")
 print(f"Total words count: {words_cnt}")
 print(f"Unique words count: {len(dictionary)}", end='\n\n')
-# print(f"IncidenceMatrix sys size: {sys.getsizeof(im)}\n")
-print(f"Dictionary sys size: {sys.getsizeof(dictionary)}\n")
+print(f"Dictionary system size: ~{sys.getsizeof(dictionary)//1024}kB\n")
 
 
 @cached(cache=LFUCache(maxsize=300))
