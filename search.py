@@ -7,7 +7,7 @@ class BooleanSearch:
     def __init__(self, d: Dictionary):
         self._all = set(i for i in range(d.docs_cnt()))
         self._d = d
-        self._sub_ex = re.compile('\w( +)[\w~]')
+        self._sub_ex = re.compile('[\w~]( +)[\w~]')
 
     def execute(self, query: str) -> set:
         """
@@ -26,7 +26,7 @@ class BooleanSearch:
 
         query = f'(|{query})'
 
-        print(f"executing {query}")
+        # print(f"executing {query}")
 
         operators = []
         operands: List[set] = [set()]
