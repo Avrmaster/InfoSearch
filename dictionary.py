@@ -3,14 +3,15 @@ from random import randint as rint
 from datetime import datetime
 
 
-start = datetime.now()
-s = LongLinkedSet()
-for i in range(100000):
-    s.add(rint(0, 20000))
-end = datetime.now()
-res = s.get_all()
-res_sorted = all(res[i] <= res[i+1] for i in range(len(res)-1))
-print(f"{len(res)} unique values (sorted={res_sorted}) in {(end-start).total_seconds()} seconds")
+# start = datetime.now()
+s1, s2 = LongLinkedSet(), LongLinkedSet()
+for i in range(3):
+    s1.add(rint(0, 10))
+    s2.add(rint(0, 10))
+# end = datetime.now()
+print(f"S1: {s1}")
+print(f"S2: {s2}")
+print(f"Union: {s1.union(s2)}")
 
 
 class Dictionary:

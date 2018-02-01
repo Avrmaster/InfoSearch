@@ -751,7 +751,7 @@ struct __pyx_t_9optimized_11collections_Node;
  * 
  * cdef struct Node:             # <<<<<<<<<<<<<<
  *     long el
- *     Node* next
+ *     Node*next
  */
 struct __pyx_t_9optimized_11collections_Node {
   long el;
@@ -759,10 +759,10 @@ struct __pyx_t_9optimized_11collections_Node {
 };
 
 /* "optimized/collections.pyx":7
- *     Node* next
+ *     Node*next
  * 
  * cdef class LongLinkedSet:             # <<<<<<<<<<<<<<
- *     cdef Node* _root
+ *     cdef Node*_root
  * 
  */
 struct __pyx_obj_9optimized_11collections_LongLinkedSet {
@@ -775,6 +775,7 @@ struct __pyx_obj_9optimized_11collections_LongLinkedSet {
 
 struct __pyx_vtabstruct_9optimized_11collections_LongLinkedSet {
   long (*add)(struct __pyx_obj_9optimized_11collections_LongLinkedSet *, long, int __pyx_skip_dispatch);
+  struct __pyx_obj_9optimized_11collections_LongLinkedSet *(*__pyx_union)(struct __pyx_obj_9optimized_11collections_LongLinkedSet *, struct __pyx_obj_9optimized_11collections_LongLinkedSet *, int __pyx_skip_dispatch);
   PyObject *(*get_all)(struct __pyx_obj_9optimized_11collections_LongLinkedSet *, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_9optimized_11collections_LongLinkedSet *__pyx_vtabptr_9optimized_11collections_LongLinkedSet;
@@ -936,6 +937,22 @@ static void __Pyx_WriteUnraisable(const char *name, int clineno,
                                   int lineno, const char *filename,
                                   int full_traceback, int nogil);
 
+/* ExtTypeTest.proto */
+static CYTHON_INLINE int __Pyx_TypeTest(PyObject *obj, PyTypeObject *type);
+
+/* BuildPyUnicode.proto */
+static PyObject* __Pyx_PyUnicode_BuildFromAscii(Py_ssize_t ulength, char* chars, int clength,
+                                                int prepend_sign, char padding_char);
+
+/* CIntToPyUnicode.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyUnicode_From_long(long value, Py_ssize_t width, char padding_char, char format_char);
+
+/* ArgTypeTest.proto */
+#define __Pyx_ArgTypeTest(obj, type, none_allowed, name, exact)\
+    ((likely((Py_TYPE(obj) == type) | (none_allowed && (obj == Py_None)))) ? 1 :\
+        __Pyx__ArgTypeTest(obj, type, name, exact))
+static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact);
+
 /* PyObjectCallNoArg.proto */
 #if CYTHON_COMPILING_IN_CPYTHON
 static CYTHON_INLINE PyObject* __Pyx_PyObject_CallNoArg(PyObject *func);
@@ -998,8 +1015,18 @@ static void __Pyx_AddTraceback(const char *funcname, int c_line,
 /* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value);
 
+/* Print.proto */
+static int __Pyx_Print(PyObject*, PyObject *, int);
+#if CYTHON_COMPILING_IN_PYPY || PY_MAJOR_VERSION >= 3
+static PyObject* __pyx_print = 0;
+static PyObject* __pyx_print_kwargs = 0;
+#endif
+
 /* CIntFromPy.proto */
 static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *);
+
+/* PrintOne.proto */
+static int __Pyx_PrintOne(PyObject* stream, PyObject *o);
 
 /* CIntFromPy.proto */
 static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *);
@@ -1023,6 +1050,7 @@ static int __Pyx_check_binary_version(void);
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 static long __pyx_f_9optimized_11collections_13LongLinkedSet_add(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self, long __pyx_v_new_el, int __pyx_skip_dispatch); /* proto*/
+static struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_f_9optimized_11collections_13LongLinkedSet_union(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self, struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_another, int __pyx_skip_dispatch); /* proto*/
 static PyObject *__pyx_f_9optimized_11collections_13LongLinkedSet_get_all(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
 
 /* Module declarations from 'libc.string' */
@@ -1037,10 +1065,16 @@ int __pyx_module_is_main_optimized__collections = 0;
 
 /* Implementation of 'optimized.collections' */
 static PyObject *__pyx_builtin_TypeError;
+static const char __pyx_k_El[] = "El: ";
 static const char __pyx_k_add[] = "add";
+static const char __pyx_k_end[] = "end";
+static const char __pyx_k_str[] = "__str__";
+static const char __pyx_k_file[] = "file";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_name[] = "__name__";
 static const char __pyx_k_test[] = "__test__";
+static const char __pyx_k_print[] = "print";
+static const char __pyx_k_union[] = "union";
 static const char __pyx_k_reduce[] = "__reduce__";
 static const char __pyx_k_get_all[] = "get_all";
 static const char __pyx_k_getstate[] = "__getstate__";
@@ -1052,13 +1086,17 @@ static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_self__root_cannot_be_converted_t[] = "self._root cannot be converted to a Python object for pickling";
+static PyObject *__pyx_kp_u_El;
 static PyObject *__pyx_n_s_TypeError;
 static PyObject *__pyx_n_s_add;
 static PyObject *__pyx_n_s_cline_in_traceback;
+static PyObject *__pyx_n_s_end;
+static PyObject *__pyx_n_s_file;
 static PyObject *__pyx_n_s_get_all;
 static PyObject *__pyx_n_s_getstate;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_name;
+static PyObject *__pyx_n_s_print;
 static PyObject *__pyx_n_s_pyx_vtable;
 static PyObject *__pyx_n_s_reduce;
 static PyObject *__pyx_n_s_reduce_cython;
@@ -1066,11 +1104,15 @@ static PyObject *__pyx_n_s_reduce_ex;
 static PyObject *__pyx_kp_s_self__root_cannot_be_converted_t;
 static PyObject *__pyx_n_s_setstate;
 static PyObject *__pyx_n_s_setstate_cython;
+static PyObject *__pyx_n_s_str;
 static PyObject *__pyx_n_s_test;
+static PyObject *__pyx_n_s_union;
 static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_add(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self, long __pyx_v_new_el); /* proto */
-static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_2get_all(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_4__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_6__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_2union(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self, struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_another); /* proto */
+static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_4get_all(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_6__str__(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_tp_new_9optimized_11collections_LongLinkedSet(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__2;
@@ -1168,7 +1210,7 @@ static long __pyx_f_9optimized_11collections_13LongLinkedSet_add(struct __pyx_ob
   /* "optimized/collections.pyx":19
  *         """
  *         cdef Node* new_n
- *         new_node = <Node*>malloc(sizeof(Node))             # <<<<<<<<<<<<<<
+ *         new_node = <Node*> malloc(sizeof(Node))             # <<<<<<<<<<<<<<
  *         new_node.el = new_el
  * 
  */
@@ -1176,7 +1218,7 @@ static long __pyx_f_9optimized_11collections_13LongLinkedSet_add(struct __pyx_ob
 
   /* "optimized/collections.pyx":20
  *         cdef Node* new_n
- *         new_node = <Node*>malloc(sizeof(Node))
+ *         new_node = <Node*> malloc(sizeof(Node))
  *         new_node.el = new_el             # <<<<<<<<<<<<<<
  * 
  *         if self._root == NULL:
@@ -1399,7 +1441,7 @@ static long __pyx_f_9optimized_11collections_13LongLinkedSet_add(struct __pyx_ob
  *             return 1
  *         return 0             # <<<<<<<<<<<<<<
  * 
- *     cpdef list get_all(LongLinkedSet self):
+ *     cpdef LongLinkedSet union(LongLinkedSet self, LongLinkedSet another):
  */
   __pyx_r = 0;
   goto __pyx_L0;
@@ -1477,12 +1519,392 @@ static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_add(struct __
 /* "optimized/collections.pyx":45
  *         return 0
  * 
+ *     cpdef LongLinkedSet union(LongLinkedSet self, LongLinkedSet another):             # <<<<<<<<<<<<<<
+ *         cdef LongLinkedSet res
+ *         res = LongLinkedSet()
+ */
+
+static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_3union(PyObject *__pyx_v_self, PyObject *__pyx_v_another); /*proto*/
+static struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_f_9optimized_11collections_13LongLinkedSet_union(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self, struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_another, int __pyx_skip_dispatch) {
+  struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_res = 0;
+  long __pyx_v_el;
+  struct __pyx_t_9optimized_11collections_Node *__pyx_v_cur;
+  struct __pyx_t_9optimized_11collections_Node *__pyx_v_left;
+  struct __pyx_t_9optimized_11collections_Node *__pyx_v_right;
+  struct __pyx_t_9optimized_11collections_Node *__pyx_v_new_n;
+  struct __pyx_t_9optimized_11collections_Node *__pyx_v_new_node;
+  struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  struct __pyx_t_9optimized_11collections_Node *__pyx_t_6;
+  int __pyx_t_7;
+  int __pyx_t_8;
+  long __pyx_t_9;
+  __Pyx_RefNannySetupContext("union", 0);
+  /* Check if called by wrapper */
+  if (unlikely(__pyx_skip_dispatch)) ;
+  /* Check if overridden in Python */
+  else if (unlikely(Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0)) {
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_union); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 45, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_9optimized_11collections_13LongLinkedSet_3union)) {
+      __Pyx_XDECREF(((PyObject *)__pyx_r));
+      __Pyx_INCREF(__pyx_t_1);
+      __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
+      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+        __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+        if (likely(__pyx_t_4)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+          __Pyx_INCREF(__pyx_t_4);
+          __Pyx_INCREF(function);
+          __Pyx_DECREF_SET(__pyx_t_3, function);
+        }
+      }
+      if (!__pyx_t_4) {
+        __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, ((PyObject *)__pyx_v_another)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 45, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+      } else {
+        #if CYTHON_FAST_PYCALL
+        if (PyFunction_Check(__pyx_t_3)) {
+          PyObject *__pyx_temp[2] = {__pyx_t_4, ((PyObject *)__pyx_v_another)};
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 45, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_GOTREF(__pyx_t_2);
+        } else
+        #endif
+        #if CYTHON_FAST_PYCCALL
+        if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
+          PyObject *__pyx_temp[2] = {__pyx_t_4, ((PyObject *)__pyx_v_another)};
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 45, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_GOTREF(__pyx_t_2);
+        } else
+        #endif
+        {
+          __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 45, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_5);
+          __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
+          __Pyx_INCREF(((PyObject *)__pyx_v_another));
+          __Pyx_GIVEREF(((PyObject *)__pyx_v_another));
+          PyTuple_SET_ITEM(__pyx_t_5, 0+1, ((PyObject *)__pyx_v_another));
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 45, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_2);
+          __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+        }
+      }
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_9optimized_11collections_LongLinkedSet))))) __PYX_ERR(1, 45, __pyx_L1_error)
+      __pyx_r = ((struct __pyx_obj_9optimized_11collections_LongLinkedSet *)__pyx_t_2);
+      __pyx_t_2 = 0;
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      goto __pyx_L0;
+    }
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  }
+
+  /* "optimized/collections.pyx":47
+ *     cpdef LongLinkedSet union(LongLinkedSet self, LongLinkedSet another):
+ *         cdef LongLinkedSet res
+ *         res = LongLinkedSet()             # <<<<<<<<<<<<<<
+ * 
+ *         cdef long el
+ */
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9optimized_11collections_LongLinkedSet), __pyx_empty_tuple, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 47, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_v_res = ((struct __pyx_obj_9optimized_11collections_LongLinkedSet *)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "optimized/collections.pyx":55
+ *         cdef Node* new_n
+ * 
+ *         left = self._root             # <<<<<<<<<<<<<<
+ *         right = another._root
+ *         while left != NULL or right != NULL:
+ */
+  __pyx_t_6 = __pyx_v_self->_root;
+  __pyx_v_left = __pyx_t_6;
+
+  /* "optimized/collections.pyx":56
+ * 
+ *         left = self._root
+ *         right = another._root             # <<<<<<<<<<<<<<
+ *         while left != NULL or right != NULL:
+ *             if right == NULL or (left != NULL and left.el <= right.el):
+ */
+  __pyx_t_6 = __pyx_v_another->_root;
+  __pyx_v_right = __pyx_t_6;
+
+  /* "optimized/collections.pyx":57
+ *         left = self._root
+ *         right = another._root
+ *         while left != NULL or right != NULL:             # <<<<<<<<<<<<<<
+ *             if right == NULL or (left != NULL and left.el <= right.el):
+ *                 el = left.el
+ */
+  while (1) {
+    __pyx_t_8 = ((__pyx_v_left != NULL) != 0);
+    if (!__pyx_t_8) {
+    } else {
+      __pyx_t_7 = __pyx_t_8;
+      goto __pyx_L5_bool_binop_done;
+    }
+    __pyx_t_8 = ((__pyx_v_right != NULL) != 0);
+    __pyx_t_7 = __pyx_t_8;
+    __pyx_L5_bool_binop_done:;
+    if (!__pyx_t_7) break;
+
+    /* "optimized/collections.pyx":58
+ *         right = another._root
+ *         while left != NULL or right != NULL:
+ *             if right == NULL or (left != NULL and left.el <= right.el):             # <<<<<<<<<<<<<<
+ *                 el = left.el
+ *                 left = left.next
+ */
+    __pyx_t_8 = ((__pyx_v_right == NULL) != 0);
+    if (!__pyx_t_8) {
+    } else {
+      __pyx_t_7 = __pyx_t_8;
+      goto __pyx_L8_bool_binop_done;
+    }
+    __pyx_t_8 = ((__pyx_v_left != NULL) != 0);
+    if (__pyx_t_8) {
+    } else {
+      __pyx_t_7 = __pyx_t_8;
+      goto __pyx_L8_bool_binop_done;
+    }
+    __pyx_t_8 = ((__pyx_v_left->el <= __pyx_v_right->el) != 0);
+    __pyx_t_7 = __pyx_t_8;
+    __pyx_L8_bool_binop_done:;
+    if (__pyx_t_7) {
+
+      /* "optimized/collections.pyx":59
+ *         while left != NULL or right != NULL:
+ *             if right == NULL or (left != NULL and left.el <= right.el):
+ *                 el = left.el             # <<<<<<<<<<<<<<
+ *                 left = left.next
+ *             else:
+ */
+      __pyx_t_9 = __pyx_v_left->el;
+      __pyx_v_el = __pyx_t_9;
+
+      /* "optimized/collections.pyx":60
+ *             if right == NULL or (left != NULL and left.el <= right.el):
+ *                 el = left.el
+ *                 left = left.next             # <<<<<<<<<<<<<<
+ *             else:
+ *                 el = right.el
+ */
+      __pyx_t_6 = __pyx_v_left->next;
+      __pyx_v_left = __pyx_t_6;
+
+      /* "optimized/collections.pyx":58
+ *         right = another._root
+ *         while left != NULL or right != NULL:
+ *             if right == NULL or (left != NULL and left.el <= right.el):             # <<<<<<<<<<<<<<
+ *                 el = left.el
+ *                 left = left.next
+ */
+      goto __pyx_L7;
+    }
+
+    /* "optimized/collections.pyx":62
+ *                 left = left.next
+ *             else:
+ *                 el = right.el             # <<<<<<<<<<<<<<
+ *                 right = right.next
+ * 
+ */
+    /*else*/ {
+      __pyx_t_9 = __pyx_v_right->el;
+      __pyx_v_el = __pyx_t_9;
+
+      /* "optimized/collections.pyx":63
+ *             else:
+ *                 el = right.el
+ *                 right = right.next             # <<<<<<<<<<<<<<
+ * 
+ *             print(f"El: {el}")
+ */
+      __pyx_t_6 = __pyx_v_right->next;
+      __pyx_v_right = __pyx_t_6;
+    }
+    __pyx_L7:;
+
+    /* "optimized/collections.pyx":65
+ *                 right = right.next
+ * 
+ *             print(f"El: {el}")             # <<<<<<<<<<<<<<
+ *             new_node = <Node*> malloc(sizeof(Node))
+ *             new_node.el =el
+ */
+    __pyx_t_1 = __Pyx_PyUnicode_From_long(__pyx_v_el, 0, ' ', 'd'); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 65, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_2 = __Pyx_PyUnicode_Concat(__pyx_kp_u_El, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 65, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    if (__Pyx_PrintOne(0, __pyx_t_2) < 0) __PYX_ERR(1, 65, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+    /* "optimized/collections.pyx":66
+ * 
+ *             print(f"El: {el}")
+ *             new_node = <Node*> malloc(sizeof(Node))             # <<<<<<<<<<<<<<
+ *             new_node.el =el
+ * 
+ */
+    __pyx_v_new_node = ((struct __pyx_t_9optimized_11collections_Node *)malloc((sizeof(struct __pyx_t_9optimized_11collections_Node))));
+
+    /* "optimized/collections.pyx":67
+ *             print(f"El: {el}")
+ *             new_node = <Node*> malloc(sizeof(Node))
+ *             new_node.el =el             # <<<<<<<<<<<<<<
+ * 
+ *             if cur == NULL:
+ */
+    __pyx_v_new_node->el = __pyx_v_el;
+
+    /* "optimized/collections.pyx":69
+ *             new_node.el =el
+ * 
+ *             if cur == NULL:             # <<<<<<<<<<<<<<
+ *                 cur = res._root = new_n
+ *             else:
+ */
+    __pyx_t_7 = ((__pyx_v_cur == NULL) != 0);
+    if (__pyx_t_7) {
+
+      /* "optimized/collections.pyx":70
+ * 
+ *             if cur == NULL:
+ *                 cur = res._root = new_n             # <<<<<<<<<<<<<<
+ *             else:
+ *                 cur.next = new_n
+ */
+      __pyx_v_cur = __pyx_v_new_n;
+      __pyx_v_res->_root = __pyx_v_new_n;
+
+      /* "optimized/collections.pyx":69
+ *             new_node.el =el
+ * 
+ *             if cur == NULL:             # <<<<<<<<<<<<<<
+ *                 cur = res._root = new_n
+ *             else:
+ */
+      goto __pyx_L11;
+    }
+
+    /* "optimized/collections.pyx":72
+ *                 cur = res._root = new_n
+ *             else:
+ *                 cur.next = new_n             # <<<<<<<<<<<<<<
+ *                 cur = new_n
+ *         return res
+ */
+    /*else*/ {
+      __pyx_v_cur->next = __pyx_v_new_n;
+
+      /* "optimized/collections.pyx":73
+ *             else:
+ *                 cur.next = new_n
+ *                 cur = new_n             # <<<<<<<<<<<<<<
+ *         return res
+ * 
+ */
+      __pyx_v_cur = __pyx_v_new_n;
+    }
+    __pyx_L11:;
+  }
+
+  /* "optimized/collections.pyx":74
+ *                 cur.next = new_n
+ *                 cur = new_n
+ *         return res             # <<<<<<<<<<<<<<
+ * 
+ *     cpdef list get_all(LongLinkedSet self):
+ */
+  __Pyx_XDECREF(((PyObject *)__pyx_r));
+  __Pyx_INCREF(((PyObject *)__pyx_v_res));
+  __pyx_r = __pyx_v_res;
+  goto __pyx_L0;
+
+  /* "optimized/collections.pyx":45
+ *         return 0
+ * 
+ *     cpdef LongLinkedSet union(LongLinkedSet self, LongLinkedSet another):             # <<<<<<<<<<<<<<
+ *         cdef LongLinkedSet res
+ *         res = LongLinkedSet()
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_AddTraceback("optimized.collections.LongLinkedSet.union", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XDECREF((PyObject *)__pyx_v_res);
+  __Pyx_XGIVEREF((PyObject *)__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_3union(PyObject *__pyx_v_self, PyObject *__pyx_v_another); /*proto*/
+static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_3union(PyObject *__pyx_v_self, PyObject *__pyx_v_another) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("union (wrapper)", 0);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_another), __pyx_ptype_9optimized_11collections_LongLinkedSet, 1, "another", 0))) __PYX_ERR(1, 45, __pyx_L1_error)
+  __pyx_r = __pyx_pf_9optimized_11collections_13LongLinkedSet_2union(((struct __pyx_obj_9optimized_11collections_LongLinkedSet *)__pyx_v_self), ((struct __pyx_obj_9optimized_11collections_LongLinkedSet *)__pyx_v_another));
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_2union(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self, struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_another) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("union", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = ((PyObject *)__pyx_f_9optimized_11collections_13LongLinkedSet_union(__pyx_v_self, __pyx_v_another, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 45, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("optimized.collections.LongLinkedSet.union", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "optimized/collections.pyx":76
+ *         return res
+ * 
  *     cpdef list get_all(LongLinkedSet self):             # <<<<<<<<<<<<<<
  *         cdef list a
  *         a = []
  */
 
-static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_3get_all(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_5get_all(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
 static PyObject *__pyx_f_9optimized_11collections_13LongLinkedSet_get_all(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self, int __pyx_skip_dispatch) {
   PyObject *__pyx_v_a = 0;
   struct __pyx_t_9optimized_11collections_Node *__pyx_v_node;
@@ -1500,9 +1922,9 @@ static PyObject *__pyx_f_9optimized_11collections_13LongLinkedSet_get_all(struct
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
   else if (unlikely(Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0)) {
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_all); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 45, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_all); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 76, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_9optimized_11collections_13LongLinkedSet_3get_all)) {
+    if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_9optimized_11collections_13LongLinkedSet_5get_all)) {
       __Pyx_XDECREF(__pyx_r);
       __Pyx_INCREF(__pyx_t_1);
       __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
@@ -1516,14 +1938,14 @@ static PyObject *__pyx_f_9optimized_11collections_13LongLinkedSet_get_all(struct
         }
       }
       if (__pyx_t_4) {
-        __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 45, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 76, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       } else {
-        __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 45, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 76, __pyx_L1_error)
       }
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (!(likely(PyList_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "list", Py_TYPE(__pyx_t_2)->tp_name), 0))) __PYX_ERR(1, 45, __pyx_L1_error)
+      if (!(likely(PyList_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "list", Py_TYPE(__pyx_t_2)->tp_name), 0))) __PYX_ERR(1, 76, __pyx_L1_error)
       __pyx_r = ((PyObject*)__pyx_t_2);
       __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -1532,21 +1954,21 @@ static PyObject *__pyx_f_9optimized_11collections_13LongLinkedSet_get_all(struct
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "optimized/collections.pyx":47
+  /* "optimized/collections.pyx":78
  *     cpdef list get_all(LongLinkedSet self):
  *         cdef list a
  *         a = []             # <<<<<<<<<<<<<<
- *         cdef Node* node
+ *         cdef Node*node
  *         node = self._root
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 47, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_a = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "optimized/collections.pyx":49
+  /* "optimized/collections.pyx":80
  *         a = []
- *         cdef Node* node
+ *         cdef Node*node
  *         node = self._root             # <<<<<<<<<<<<<<
  *         while node != NULL:
  *             a.append(node.el)
@@ -1554,8 +1976,8 @@ static PyObject *__pyx_f_9optimized_11collections_13LongLinkedSet_get_all(struct
   __pyx_t_5 = __pyx_v_self->_root;
   __pyx_v_node = __pyx_t_5;
 
-  /* "optimized/collections.pyx":50
- *         cdef Node* node
+  /* "optimized/collections.pyx":81
+ *         cdef Node*node
  *         node = self._root
  *         while node != NULL:             # <<<<<<<<<<<<<<
  *             a.append(node.el)
@@ -1565,40 +1987,43 @@ static PyObject *__pyx_f_9optimized_11collections_13LongLinkedSet_get_all(struct
     __pyx_t_6 = ((__pyx_v_node != NULL) != 0);
     if (!__pyx_t_6) break;
 
-    /* "optimized/collections.pyx":51
+    /* "optimized/collections.pyx":82
  *         node = self._root
  *         while node != NULL:
  *             a.append(node.el)             # <<<<<<<<<<<<<<
  *             node = node.next
  *         return a
  */
-    __pyx_t_1 = __Pyx_PyInt_From_long(__pyx_v_node->el); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 51, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyInt_From_long(__pyx_v_node->el); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 82, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_7 = __Pyx_PyList_Append(__pyx_v_a, __pyx_t_1); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(1, 51, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyList_Append(__pyx_v_a, __pyx_t_1); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(1, 82, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "optimized/collections.pyx":52
+    /* "optimized/collections.pyx":83
  *         while node != NULL:
  *             a.append(node.el)
  *             node = node.next             # <<<<<<<<<<<<<<
  *         return a
+ * 
  */
     __pyx_t_5 = __pyx_v_node->next;
     __pyx_v_node = __pyx_t_5;
   }
 
-  /* "optimized/collections.pyx":53
+  /* "optimized/collections.pyx":84
  *             a.append(node.el)
  *             node = node.next
  *         return a             # <<<<<<<<<<<<<<
+ * 
+ *     def __str__(LongLinkedSet self):
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_a);
   __pyx_r = __pyx_v_a;
   goto __pyx_L0;
 
-  /* "optimized/collections.pyx":45
- *         return 0
+  /* "optimized/collections.pyx":76
+ *         return res
  * 
  *     cpdef list get_all(LongLinkedSet self):             # <<<<<<<<<<<<<<
  *         cdef list a
@@ -1621,25 +2046,25 @@ static PyObject *__pyx_f_9optimized_11collections_13LongLinkedSet_get_all(struct
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_3get_all(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_3get_all(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_5get_all(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_5get_all(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("get_all (wrapper)", 0);
-  __pyx_r = __pyx_pf_9optimized_11collections_13LongLinkedSet_2get_all(((struct __pyx_obj_9optimized_11collections_LongLinkedSet *)__pyx_v_self));
+  __pyx_r = __pyx_pf_9optimized_11collections_13LongLinkedSet_4get_all(((struct __pyx_obj_9optimized_11collections_LongLinkedSet *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_2get_all(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self) {
+static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_4get_all(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("get_all", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_9optimized_11collections_13LongLinkedSet_get_all(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 45, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_9optimized_11collections_13LongLinkedSet_get_all(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -1656,6 +2081,87 @@ static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_2get_all(stru
   return __pyx_r;
 }
 
+/* "optimized/collections.pyx":86
+ *         return a
+ * 
+ *     def __str__(LongLinkedSet self):             # <<<<<<<<<<<<<<
+ *         return self.get_all().__str__()
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_7__str__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_7__str__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__str__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_9optimized_11collections_13LongLinkedSet_6__str__(((struct __pyx_obj_9optimized_11collections_LongLinkedSet *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_6__str__(struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  __Pyx_RefNannySetupContext("__str__", 0);
+
+  /* "optimized/collections.pyx":87
+ * 
+ *     def __str__(LongLinkedSet self):
+ *         return self.get_all().__str__()             # <<<<<<<<<<<<<<
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_2 = ((struct __pyx_vtabstruct_9optimized_11collections_LongLinkedSet *)__pyx_v_self->__pyx_vtab)->get_all(__pyx_v_self, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 87, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_str); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 87, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = NULL;
+  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_2)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_2);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+    }
+  }
+  if (__pyx_t_2) {
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 87, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else {
+    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 87, __pyx_L1_error)
+  }
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "optimized/collections.pyx":86
+ *         return a
+ * 
+ *     def __str__(LongLinkedSet self):             # <<<<<<<<<<<<<<
+ *         return self.get_all().__str__()
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_AddTraceback("optimized.collections.LongLinkedSet.__str__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
 /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     raise TypeError("self._root cannot be converted to a Python object for pickling")
@@ -1663,19 +2169,19 @@ static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_2get_all(stru
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_9optimized_11collections_13LongLinkedSet_4__reduce_cython__(((struct __pyx_obj_9optimized_11collections_LongLinkedSet *)__pyx_v_self));
+  __pyx_r = __pyx_pf_9optimized_11collections_13LongLinkedSet_8__reduce_cython__(((struct __pyx_obj_9optimized_11collections_LongLinkedSet *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_4__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self) {
+static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1717,19 +2223,19 @@ static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_4__reduce_cyt
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_9optimized_11collections_13LongLinkedSet_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_9optimized_11collections_13LongLinkedSet_6__setstate_cython__(((struct __pyx_obj_9optimized_11collections_LongLinkedSet *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_9optimized_11collections_13LongLinkedSet_10__setstate_cython__(((struct __pyx_obj_9optimized_11collections_LongLinkedSet *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_6__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_9optimized_11collections_13LongLinkedSet_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_9optimized_11collections_LongLinkedSet *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1789,9 +2295,10 @@ static void __pyx_tp_dealloc_9optimized_11collections_LongLinkedSet(PyObject *o)
 
 static PyMethodDef __pyx_methods_9optimized_11collections_LongLinkedSet[] = {
   {"add", (PyCFunction)__pyx_pw_9optimized_11collections_13LongLinkedSet_1add, METH_O, __pyx_doc_9optimized_11collections_13LongLinkedSet_add},
-  {"get_all", (PyCFunction)__pyx_pw_9optimized_11collections_13LongLinkedSet_3get_all, METH_NOARGS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_9optimized_11collections_13LongLinkedSet_5__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_9optimized_11collections_13LongLinkedSet_7__setstate_cython__, METH_O, 0},
+  {"union", (PyCFunction)__pyx_pw_9optimized_11collections_13LongLinkedSet_3union, METH_O, 0},
+  {"get_all", (PyCFunction)__pyx_pw_9optimized_11collections_13LongLinkedSet_5get_all, METH_NOARGS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_9optimized_11collections_13LongLinkedSet_9__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_9optimized_11collections_13LongLinkedSet_11__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
@@ -1816,7 +2323,7 @@ static PyTypeObject __pyx_type_9optimized_11collections_LongLinkedSet = {
   0, /*tp_as_mapping*/
   0, /*tp_hash*/
   0, /*tp_call*/
-  0, /*tp_str*/
+  __pyx_pw_9optimized_11collections_13LongLinkedSet_7__str__, /*tp_str*/
   0, /*tp_getattro*/
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
@@ -1890,13 +2397,17 @@ static struct PyModuleDef __pyx_moduledef = {
 #endif
 
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
+  {&__pyx_kp_u_El, __pyx_k_El, sizeof(__pyx_k_El), 0, 1, 0, 0},
   {&__pyx_n_s_TypeError, __pyx_k_TypeError, sizeof(__pyx_k_TypeError), 0, 0, 1, 1},
   {&__pyx_n_s_add, __pyx_k_add, sizeof(__pyx_k_add), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
+  {&__pyx_n_s_end, __pyx_k_end, sizeof(__pyx_k_end), 0, 0, 1, 1},
+  {&__pyx_n_s_file, __pyx_k_file, sizeof(__pyx_k_file), 0, 0, 1, 1},
   {&__pyx_n_s_get_all, __pyx_k_get_all, sizeof(__pyx_k_get_all), 0, 0, 1, 1},
   {&__pyx_n_s_getstate, __pyx_k_getstate, sizeof(__pyx_k_getstate), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
+  {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
   {&__pyx_n_s_reduce, __pyx_k_reduce, sizeof(__pyx_k_reduce), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_cython, __pyx_k_reduce_cython, sizeof(__pyx_k_reduce_cython), 0, 0, 1, 1},
@@ -1904,7 +2415,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_self__root_cannot_be_converted_t, __pyx_k_self__root_cannot_be_converted_t, sizeof(__pyx_k_self__root_cannot_be_converted_t), 0, 0, 1, 0},
   {&__pyx_n_s_setstate, __pyx_k_setstate, sizeof(__pyx_k_setstate), 0, 0, 1, 1},
   {&__pyx_n_s_setstate_cython, __pyx_k_setstate_cython, sizeof(__pyx_k_setstate_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_str, __pyx_k_str, sizeof(__pyx_k_str), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
+  {&__pyx_n_s_union, __pyx_k_union, sizeof(__pyx_k_union), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
@@ -2089,6 +2602,7 @@ static int __pyx_pymod_exec_collections(PyObject *__pyx_pyinit_module)
   /*--- Type init code ---*/
   __pyx_vtabptr_9optimized_11collections_LongLinkedSet = &__pyx_vtable_9optimized_11collections_LongLinkedSet;
   __pyx_vtable_9optimized_11collections_LongLinkedSet.add = (long (*)(struct __pyx_obj_9optimized_11collections_LongLinkedSet *, long, int __pyx_skip_dispatch))__pyx_f_9optimized_11collections_13LongLinkedSet_add;
+  __pyx_vtable_9optimized_11collections_LongLinkedSet.__pyx_union = (struct __pyx_obj_9optimized_11collections_LongLinkedSet *(*)(struct __pyx_obj_9optimized_11collections_LongLinkedSet *, struct __pyx_obj_9optimized_11collections_LongLinkedSet *, int __pyx_skip_dispatch))__pyx_f_9optimized_11collections_13LongLinkedSet_union;
   __pyx_vtable_9optimized_11collections_LongLinkedSet.get_all = (PyObject *(*)(struct __pyx_obj_9optimized_11collections_LongLinkedSet *, int __pyx_skip_dispatch))__pyx_f_9optimized_11collections_13LongLinkedSet_get_all;
   if (PyType_Ready(&__pyx_type_9optimized_11collections_LongLinkedSet) < 0) __PYX_ERR(1, 7, __pyx_L1_error)
   __pyx_type_9optimized_11collections_LongLinkedSet.tp_print = 0;
@@ -2457,6 +2971,222 @@ static void __Pyx_WriteUnraisable(const char *name, CYTHON_UNUSED int clineno,
     if (nogil)
         PyGILState_Release(state);
 #endif
+}
+
+/* ExtTypeTest */
+static CYTHON_INLINE int __Pyx_TypeTest(PyObject *obj, PyTypeObject *type) {
+    if (unlikely(!type)) {
+        PyErr_SetString(PyExc_SystemError, "Missing type object");
+        return 0;
+    }
+    if (likely(__Pyx_TypeCheck(obj, type)))
+        return 1;
+    PyErr_Format(PyExc_TypeError, "Cannot convert %.200s to %.200s",
+                 Py_TYPE(obj)->tp_name, type->tp_name);
+    return 0;
+}
+
+/* CIntToDigits */
+static const char DIGIT_PAIRS_10[2*10*10+1] = {
+    "00010203040506070809"
+    "10111213141516171819"
+    "20212223242526272829"
+    "30313233343536373839"
+    "40414243444546474849"
+    "50515253545556575859"
+    "60616263646566676869"
+    "70717273747576777879"
+    "80818283848586878889"
+    "90919293949596979899"
+};
+static const char DIGIT_PAIRS_8[2*8*8+1] = {
+    "0001020304050607"
+    "1011121314151617"
+    "2021222324252627"
+    "3031323334353637"
+    "4041424344454647"
+    "5051525354555657"
+    "6061626364656667"
+    "7071727374757677"
+};
+static const char DIGITS_HEX[2*16+1] = {
+    "0123456789abcdef0123456789ABCDEF"
+};
+
+/* BuildPyUnicode */
+static PyObject* __Pyx_PyUnicode_BuildFromAscii(Py_ssize_t ulength, char* chars, int clength,
+                                                int prepend_sign, char padding_char) {
+    PyObject *uval;
+    Py_ssize_t uoffset = ulength - clength;
+#if CYTHON_USE_UNICODE_INTERNALS
+    Py_ssize_t i;
+#if CYTHON_PEP393_ENABLED
+    void *udata;
+    uval = PyUnicode_New(ulength, 127);
+    if (unlikely(!uval)) return NULL;
+    udata = PyUnicode_DATA(uval);
+#else
+    Py_UNICODE *udata;
+    uval = PyUnicode_FromUnicode(NULL, ulength);
+    if (unlikely(!uval)) return NULL;
+    udata = PyUnicode_AS_UNICODE(uval);
+#endif
+    if (uoffset > 0) {
+        i = 0;
+        if (prepend_sign) {
+            __Pyx_PyUnicode_WRITE(PyUnicode_1BYTE_KIND, udata, 0, '-');
+            i++;
+        }
+        for (; i < uoffset; i++) {
+            __Pyx_PyUnicode_WRITE(PyUnicode_1BYTE_KIND, udata, i, padding_char);
+        }
+    }
+    for (i=0; i < clength; i++) {
+        __Pyx_PyUnicode_WRITE(PyUnicode_1BYTE_KIND, udata, uoffset+i, chars[i]);
+    }
+#else
+    {
+        uval = NULL;
+        PyObject *sign = NULL, *padding = NULL;
+        if (uoffset > 0) {
+            prepend_sign = !!prepend_sign;
+            if (uoffset > prepend_sign) {
+                padding = PyUnicode_FromOrdinal(padding_char);
+                if (likely(padding) && uoffset > prepend_sign + 1) {
+                    PyObject *tmp;
+                    PyObject *repeat = PyInt_FromSize_t(uoffset - prepend_sign);
+                    if (unlikely(!repeat)) goto done_or_error;
+                    tmp = PyNumber_Multiply(padding, repeat);
+                    Py_DECREF(repeat);
+                    Py_DECREF(padding);
+                    padding = tmp;
+                }
+                if (unlikely(!padding)) goto done_or_error;
+            }
+            if (prepend_sign) {
+                sign = PyUnicode_FromOrdinal('-');
+                if (unlikely(!sign)) goto done_or_error;
+            }
+        }
+        uval = PyUnicode_DecodeASCII(chars, clength, NULL);
+        if (likely(uval) && padding) {
+            PyObject *tmp = PyNumber_Add(padding, uval);
+            Py_DECREF(uval);
+            uval = tmp;
+        }
+        if (likely(uval) && sign) {
+            PyObject *tmp = PyNumber_Add(sign, uval);
+            Py_DECREF(uval);
+            uval = tmp;
+        }
+done_or_error:
+        Py_XDECREF(padding);
+        Py_XDECREF(sign);
+    }
+#endif
+    return uval;
+}
+
+/* CIntToPyUnicode */
+#ifdef _MSC_VER
+    #ifndef _MSC_STDINT_H_
+        #if _MSC_VER < 1300
+           typedef unsigned short    uint16_t;
+        #else
+           typedef unsigned __int16  uint16_t;
+        #endif
+    #endif
+#else
+   #include <stdint.h>
+#endif
+static CYTHON_INLINE PyObject* __Pyx_PyUnicode_From_long(long value, Py_ssize_t width, char padding_char, char format_char) {
+    char digits[sizeof(long)*3+2];
+    char *dpos, *end = digits + sizeof(long)*3+2;
+    const char *hex_digits = DIGITS_HEX;
+    Py_ssize_t ulength;
+    int length, prepend_sign, last_one_off;
+    long remaining;
+    const long neg_one = (long) -1, const_zero = (long) 0;
+    const int is_unsigned = neg_one > const_zero;
+    if (format_char == 'X') {
+        hex_digits += 16;
+        format_char = 'x';
+    };
+    remaining = value;
+    last_one_off = 0;
+    dpos = end;
+    while (remaining != 0) {
+        int digit_pos;
+        switch (format_char) {
+        case 'o':
+            digit_pos = abs((int)(remaining % (8*8)));
+            remaining = remaining / (8*8);
+            dpos -= 2;
+            *(uint16_t*)dpos = ((uint16_t*)DIGIT_PAIRS_8)[digit_pos];
+            last_one_off = (digit_pos < 8);
+            break;
+        case 'd':
+            digit_pos = abs((int)(remaining % (10*10)));
+            remaining = remaining / (10*10);
+            dpos -= 2;
+            *(uint16_t*)dpos = ((uint16_t*)DIGIT_PAIRS_10)[digit_pos];
+            last_one_off = (digit_pos < 10);
+            break;
+        case 'x':
+            *(--dpos) = hex_digits[abs((int)(remaining % 16))];
+            remaining = remaining / 16;
+            break;
+        default:
+            assert(0);
+            break;
+        }
+    }
+    if (last_one_off) {
+        assert(*dpos == '0');
+        dpos++;
+    } else if (unlikely(dpos == end)) {
+        *(--dpos) = '0';
+    }
+    length = end - dpos;
+    ulength = length;
+    prepend_sign = 0;
+    if (!is_unsigned && value <= neg_one) {
+        if (padding_char == ' ' || width <= length + 1) {
+            *(--dpos) = '-';
+            ++length;
+        } else {
+            prepend_sign = 1;
+        }
+        ++ulength;
+    }
+    if (width > ulength) {
+        ulength = width;
+    }
+    if (ulength == 1) {
+        return PyUnicode_FromOrdinal(*dpos);
+    }
+    return __Pyx_PyUnicode_BuildFromAscii(ulength, dpos, length, prepend_sign, padding_char);
+}
+
+/* ArgTypeTest */
+static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact)
+{
+    if (unlikely(!type)) {
+        PyErr_SetString(PyExc_SystemError, "Missing type object");
+        return 0;
+    }
+    else if (exact) {
+        #if PY_MAJOR_VERSION == 2
+        if ((type == &PyBaseString_Type) && likely(__Pyx_PyBaseString_CheckExact(obj))) return 1;
+        #endif
+    }
+    else {
+        if (likely(__Pyx_TypeCheck(obj, type))) return 1;
+    }
+    PyErr_Format(PyExc_TypeError,
+        "Argument '%.200s' has incorrect type (expected %.200s, got %.200s)",
+        name, type->tp_name, Py_TYPE(obj)->tp_name);
+    return 0;
 }
 
 /* PyObjectCallNoArg */
@@ -2988,6 +3718,112 @@ bad:
     }
 }
 
+/* Print */
+  #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION < 3
+static PyObject *__Pyx_GetStdout(void) {
+    PyObject *f = PySys_GetObject((char *)"stdout");
+    if (!f) {
+        PyErr_SetString(PyExc_RuntimeError, "lost sys.stdout");
+    }
+    return f;
+}
+static int __Pyx_Print(PyObject* f, PyObject *arg_tuple, int newline) {
+    int i;
+    if (!f) {
+        if (!(f = __Pyx_GetStdout()))
+            return -1;
+    }
+    Py_INCREF(f);
+    for (i=0; i < PyTuple_GET_SIZE(arg_tuple); i++) {
+        PyObject* v;
+        if (PyFile_SoftSpace(f, 1)) {
+            if (PyFile_WriteString(" ", f) < 0)
+                goto error;
+        }
+        v = PyTuple_GET_ITEM(arg_tuple, i);
+        if (PyFile_WriteObject(v, f, Py_PRINT_RAW) < 0)
+            goto error;
+        if (PyString_Check(v)) {
+            char *s = PyString_AsString(v);
+            Py_ssize_t len = PyString_Size(v);
+            if (len > 0) {
+                switch (s[len-1]) {
+                    case ' ': break;
+                    case '\f': case '\r': case '\n': case '\t': case '\v':
+                        PyFile_SoftSpace(f, 0);
+                        break;
+                    default:  break;
+                }
+            }
+        }
+    }
+    if (newline) {
+        if (PyFile_WriteString("\n", f) < 0)
+            goto error;
+        PyFile_SoftSpace(f, 0);
+    }
+    Py_DECREF(f);
+    return 0;
+error:
+    Py_DECREF(f);
+    return -1;
+}
+#else
+static int __Pyx_Print(PyObject* stream, PyObject *arg_tuple, int newline) {
+    PyObject* kwargs = 0;
+    PyObject* result = 0;
+    PyObject* end_string;
+    if (unlikely(!__pyx_print)) {
+        __pyx_print = PyObject_GetAttr(__pyx_b, __pyx_n_s_print);
+        if (!__pyx_print)
+            return -1;
+    }
+    if (stream) {
+        kwargs = PyDict_New();
+        if (unlikely(!kwargs))
+            return -1;
+        if (unlikely(PyDict_SetItem(kwargs, __pyx_n_s_file, stream) < 0))
+            goto bad;
+        if (!newline) {
+            end_string = PyUnicode_FromStringAndSize(" ", 1);
+            if (unlikely(!end_string))
+                goto bad;
+            if (PyDict_SetItem(kwargs, __pyx_n_s_end, end_string) < 0) {
+                Py_DECREF(end_string);
+                goto bad;
+            }
+            Py_DECREF(end_string);
+        }
+    } else if (!newline) {
+        if (unlikely(!__pyx_print_kwargs)) {
+            __pyx_print_kwargs = PyDict_New();
+            if (unlikely(!__pyx_print_kwargs))
+                return -1;
+            end_string = PyUnicode_FromStringAndSize(" ", 1);
+            if (unlikely(!end_string))
+                return -1;
+            if (PyDict_SetItem(__pyx_print_kwargs, __pyx_n_s_end, end_string) < 0) {
+                Py_DECREF(end_string);
+                return -1;
+            }
+            Py_DECREF(end_string);
+        }
+        kwargs = __pyx_print_kwargs;
+    }
+    result = PyObject_Call(__pyx_print, arg_tuple, kwargs);
+    if (unlikely(kwargs) && (kwargs != __pyx_print_kwargs))
+        Py_DECREF(kwargs);
+    if (!result)
+        return -1;
+    Py_DECREF(result);
+    return 0;
+bad:
+    if (kwargs != __pyx_print_kwargs)
+        Py_XDECREF(kwargs);
+    return -1;
+}
+#endif
+
 /* CIntFromPy */
   static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *x) {
     const long neg_one = (long) -1, const_zero = (long) 0;
@@ -3176,6 +4012,43 @@ raise_neg_overflow:
         "can't convert negative value to long");
     return (long) -1;
 }
+
+/* PrintOne */
+  #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION < 3
+static int __Pyx_PrintOne(PyObject* f, PyObject *o) {
+    if (!f) {
+        if (!(f = __Pyx_GetStdout()))
+            return -1;
+    }
+    Py_INCREF(f);
+    if (PyFile_SoftSpace(f, 0)) {
+        if (PyFile_WriteString(" ", f) < 0)
+            goto error;
+    }
+    if (PyFile_WriteObject(o, f, Py_PRINT_RAW) < 0)
+        goto error;
+    if (PyFile_WriteString("\n", f) < 0)
+        goto error;
+    Py_DECREF(f);
+    return 0;
+error:
+    Py_DECREF(f);
+    return -1;
+    /* the line below is just to avoid C compiler
+     * warnings about unused functions */
+    return __Pyx_Print(f, NULL, 0);
+}
+#else
+static int __Pyx_PrintOne(PyObject* stream, PyObject *o) {
+    int res;
+    PyObject* arg_tuple = PyTuple_Pack(1, o);
+    if (unlikely(!arg_tuple))
+        return -1;
+    res = __Pyx_Print(stream, arg_tuple, 1);
+    Py_DECREF(arg_tuple);
+    return res;
+}
+#endif
 
 /* CIntFromPy */
   static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *x) {
