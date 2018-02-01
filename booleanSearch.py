@@ -1,6 +1,7 @@
-from dictionary import Dictionary
-from typing import List
 import re
+from typing import List
+
+from optimized.dictionary import Dictionary
 
 
 class BooleanSearch:
