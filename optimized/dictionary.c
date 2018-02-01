@@ -1314,8 +1314,8 @@ static PyObject *__pyx_builtin_sum;
 static PyObject *__pyx_builtin_enumerate;
 static PyObject *__pyx_builtin_open;
 static const char __pyx_k_[] = "..";
-static const char __pyx_k_w[] = "[^\\w'-_]+";
-static const char __pyx_k__3[] = "^['-_]+|['-_]+$";
+static const char __pyx_k_w[] = "[^\\w'-]+";
+static const char __pyx_k__3[] = "^['-]+|['-]+$";
 static const char __pyx_k__5[] = "/";
 static const char __pyx_k__6[] = "";
 static const char __pyx_k__8[] = ".";
@@ -1673,7 +1673,7 @@ static PyObject *__pyx_f_9optimized_10dictionary_10Dictionary_add_dir(struct __p
  *         """
  *         print(f"Indexing directory {to_index_path}..")             # <<<<<<<<<<<<<<
  * 
- *         split_ex = re.compile(r"[^\w'-_]+", flags=re.IGNORECASE)
+ *         split_ex = re.compile(r"[^\w'-]+", flags=re.IGNORECASE)
  */
   __pyx_t_1 = PyTuple_New(3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -1710,8 +1710,8 @@ static PyObject *__pyx_f_9optimized_10dictionary_10Dictionary_add_dir(struct __p
   /* "optimized/dictionary.pyx":23
  *         print(f"Indexing directory {to_index_path}..")
  * 
- *         split_ex = re.compile(r"[^\w'-_]+", flags=re.IGNORECASE)             # <<<<<<<<<<<<<<
- *         strip_ex = re.compile(r"^['-_]+|['-_]+$", flags=re.IGNORECASE)
+ *         split_ex = re.compile(r"[^\w'-]+", flags=re.IGNORECASE)             # <<<<<<<<<<<<<<
+ *         strip_ex = re.compile(r"^['-]+|['-]+$", flags=re.IGNORECASE)
  * 
  */
   __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_re); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 23, __pyx_L1_error)
@@ -1737,8 +1737,8 @@ static PyObject *__pyx_f_9optimized_10dictionary_10Dictionary_add_dir(struct __p
 
   /* "optimized/dictionary.pyx":24
  * 
- *         split_ex = re.compile(r"[^\w'-_]+", flags=re.IGNORECASE)
- *         strip_ex = re.compile(r"^['-_]+|['-_]+$", flags=re.IGNORECASE)             # <<<<<<<<<<<<<<
+ *         split_ex = re.compile(r"[^\w'-]+", flags=re.IGNORECASE)
+ *         strip_ex = re.compile(r"^['-]+|['-]+$", flags=re.IGNORECASE)             # <<<<<<<<<<<<<<
  * 
  *         cdef list docs_list
  */
@@ -4909,8 +4909,8 @@ static int __Pyx_InitCachedConstants(void) {
   /* "optimized/dictionary.pyx":23
  *         print(f"Indexing directory {to_index_path}..")
  * 
- *         split_ex = re.compile(r"[^\w'-_]+", flags=re.IGNORECASE)             # <<<<<<<<<<<<<<
- *         strip_ex = re.compile(r"^['-_]+|['-_]+$", flags=re.IGNORECASE)
+ *         split_ex = re.compile(r"[^\w'-]+", flags=re.IGNORECASE)             # <<<<<<<<<<<<<<
+ *         strip_ex = re.compile(r"^['-]+|['-]+$", flags=re.IGNORECASE)
  * 
  */
   __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_s_w); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 23, __pyx_L1_error)
@@ -4919,8 +4919,8 @@ static int __Pyx_InitCachedConstants(void) {
 
   /* "optimized/dictionary.pyx":24
  * 
- *         split_ex = re.compile(r"[^\w'-_]+", flags=re.IGNORECASE)
- *         strip_ex = re.compile(r"^['-_]+|['-_]+$", flags=re.IGNORECASE)             # <<<<<<<<<<<<<<
+ *         split_ex = re.compile(r"[^\w'-]+", flags=re.IGNORECASE)
+ *         strip_ex = re.compile(r"^['-]+|['-]+$", flags=re.IGNORECASE)             # <<<<<<<<<<<<<<
  * 
  *         cdef list docs_list
  */

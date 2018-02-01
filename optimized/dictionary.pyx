@@ -20,8 +20,8 @@ cdef class Dictionary:
         """
         print(f"Indexing directory {to_index_path}..")
 
-        split_ex = re.compile(r"[^\w'-_]+", flags=re.IGNORECASE)
-        strip_ex = re.compile(r"^['-_]+|['-_]+$", flags=re.IGNORECASE)
+        split_ex = re.compile(r"[^\w'-]+", flags=re.IGNORECASE)
+        strip_ex = re.compile(r"^['-]+|['-]+$", flags=re.IGNORECASE)
 
         cdef list docs_list
         cdef long total_size
@@ -50,7 +50,7 @@ cdef class Dictionary:
                         continue
                     for word in split_ex.split(line):
                         word = strip_ex.sub('', word)
-                        if len(word) > 1:
+                        if len(word) > 0:
                             self.add_word(word, len(paragraphs_map))
                             words_cnt += 1
                     paragraphs_map.append((filepath, line_num))
