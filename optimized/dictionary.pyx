@@ -46,7 +46,7 @@ cdef class Dictionary:
             filepath = to_index_path + '/' + filename
             with open(filepath) as file:
                 for line_num, line in enumerate(file):
-                    if len(line) < 1:
+                    if len(line) < 2:
                         continue
                     for word in split_ex.split(line):
                         word = strip_ex.sub('', word)
