@@ -4,7 +4,12 @@ from typing import List
 from optimized.dictionary import Dictionary
 
 
-class BooleanSearch:
+class Search:
+    def execute(self, query: str) -> set:
+        raise NotImplementedError
+
+
+class BooleanSearch(Search):
     def __init__(self, d: Dictionary):
         self._all = set(i for i in range(d.docs_cnt()))
         self._d = d
@@ -58,3 +63,19 @@ class BooleanSearch:
                 w += e
 
         return operands.pop()
+
+
+class PhraseSearch(Search):
+    def __init__(self, d: Dictionary):
+        self._dictionary = d
+
+    def execute(self, query: str) -> set:
+        if ' ' in query:
+            parts = query.split(' ')
+            print(f"Parts: {parts}")
+            res = self._dictionary.get_ids(parts[0])
+            for i in range(1, len(parts)):
+                res.intersection_update(self._dictionary.get_sequence_ids(parts[i-1], parts[i]))
+            return res
+        else:
+            return self._dictionary.get_ids(query)

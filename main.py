@@ -1,7 +1,7 @@
 import os; os.system("python optimized_build.py build_ext --inplace")
 from optimized.dictionary import Dictionary
 from cachetools import cached, LFUCache
-from booleanSearch import BooleanSearch
+from search import BooleanSearch, PhraseSearch
 from datetime import datetime
 import sys
 
@@ -9,7 +9,7 @@ import sys
 if __name__ == "__main__":
     dictionary = Dictionary()
     start_time = datetime.now()
-    dictionary.add_dir('documents/txtAll')
+    dictionary.add_dir('documents/txt')
     end_time = datetime.now()
     print(f"    Indexed in {(end_time-start_time).total_seconds()} secs")
     # print(dictionary, end='\n\n')
@@ -26,8 +26,8 @@ if __name__ == "__main__":
                     print(end='\r')
                     return l
 
-
-    bs = BooleanSearch(dictionary)
+    # bs = BooleanSearch(dictionary)
+    bs = PhraseSearch(dictionary)
     while True:
         query = input("Enter your query (empty to quit): ")
         if not query:

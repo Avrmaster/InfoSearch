@@ -6,11 +6,13 @@ import re
 
 cdef class Dictionary:
     cdef dict _d
+    cdef dict _double_d
     cdef int _docs_cnt
     cdef list _paragraphs_map
 
     def __init__(self):
         self._d = dict()
+        self._double_d = dict()
         self._docs_cnt = 0
         self._paragraphs_map = []
 
@@ -23,9 +25,8 @@ cdef class Dictionary:
             chunks.append((chunks[-1][1], files_cnt-1))
         print(f"Splitting |{to_index_path}| into {len(chunks)} chunks")
         if len(chunks) > 0:
-            results = ThreadPool(cpu_count()).starmap(Dictionary._add_dir,
+            ThreadPool(cpu_count()).starmap(Dictionary._add_dir,
                                                       [(self, to_index_path, ch[0], ch[1]) for ch in chunks])
-
         else:
             self._add_dir(to_index_path, 0, files_cnt)
 
@@ -58,6 +59,7 @@ cdef class Dictionary:
         cdef str filepath
         cdef long line_num
         cdef str line
+        cdef str prev
         cdef str word
 
         for doc_id, filename in enumerate(docs_list):
@@ -66,20 +68,25 @@ cdef class Dictionary:
                 for line_num, line in enumerate(file):
                     if len(line) < 2:
                         continue
+                    prev = None
                     for word in split_ex.split(line):
                         word = strip_ex.sub('', word)
                         if len(word) > 0:
-                            self.add_word(word, len(self._paragraphs_map))
+                            self._add_word(word, len(self._paragraphs_map))
                             words_cnt += 1
+                            if prev is not None:
+                                self._add_sequence(prev, word, len(self._paragraphs_map))
+                            prev = word
                     self._paragraphs_map.append((filepath, line_num))
             read_size += os.path.getsize(filepath) // 1024
             print(f'\rReading{"."*(doc_id%3)}{" "*(3-doc_id%3)}{(read_size*100)/total_size}% '
                   f'{doc_id+1}/{len(docs_list)} - {filename}', end='')
 
+        return self
         # print("\rReading 100%")
         # print(f"Total words read: {words_cnt}")
 
-    cdef add_word(self, str w, int ind):
+    cdef _add_word(self, str w, int ind):
         w = w.capitalize()
         cdef set s
         s = self._d[w] = self._d.get(w, set())
@@ -87,8 +94,21 @@ cdef class Dictionary:
         self._docs_cnt = max(self._docs_cnt, ind + 1)
         pass
 
+    cdef _add_sequence(self, str w1, str w2, int ind):
+        w1 = w1.capitalize()
+        w2 = w2.capitalize()
+        cdef str seq
+        seq = w1+'\t'+w2
+        cdef set s
+        s = self._double_d[seq] = self._double_d.get(seq, set())
+        s.add(ind)
+        self._docs_cnt = max(self._docs_cnt, ind+1)
+
     cpdef set get_ids(self, str word):
         return self._d.get(word.capitalize(), set())
+
+    cpdef set get_sequence_ids(self, str word1, str word2):
+        return self._double_d.get(word1.capitalize()+'\t'+word2.capitalize(), set())
 
     cpdef docs_cnt(self):
         return self._docs_cnt

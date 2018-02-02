@@ -2,3 +2,5 @@
 .idea/*
 documents/txt/*
 documents/txtAll/*
+*.pyd
+*.c
