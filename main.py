@@ -1,6 +1,5 @@
 import os; os.system("python optimized_build.py build_ext --inplace")
 from optimized.dictionary import Dictionary
-from cachetools import cached, LFUCache
 from search import BooleanSearch, PhraseSearch
 from datetime import datetime
 import sys
@@ -16,16 +15,6 @@ if __name__ == "__main__":
     print(f"Unique words count: {len(dictionary)}", end='\n\n')
     print(f"Dictionary system size: ~{sys.getsizeof(dictionary)//1024}kB\n")
 
-    @cached(cache=LFUCache(maxsize=300))
-    def get_paragraph(p_id: int):
-        fpath, lnum = dictionary.get_paragraph_info(p_id)
-        with open(fpath) as f:
-            for j, l in enumerate(f):
-                print(f"\ropening{'.'*(j%3)+' '*(3-j%3)}{(j+1)*100//(lnum+1)}%", end='')
-                if j == lnum:
-                    print(end='\r')
-                    return l
-
     # bs = BooleanSearch(dictionary)
     bs = PhraseSearch(dictionary)
     while True:
@@ -35,6 +24,6 @@ if __name__ == "__main__":
         paragraphs = bs.execute(query)
         print(f"Found {len(paragraphs)} results")
         for i, p in enumerate(paragraphs):
-            print(f"Result {(i+1)} (in {dictionary.get_paragraph_info(p)[0]}): \n{get_paragraph(p)}")
+            print(f"Result {(i+1)} (in {dictionary.get_paragraph_info(p)[0]}): \n{dictionary.get_paragraph(p)}")
             if input() != "":
                 break

@@ -68,14 +68,22 @@ class BooleanSearch(Search):
 class PhraseSearch(Search):
     def __init__(self, d: Dictionary):
         self._dictionary = d
+        self._sub_ex = re.compile("[^\w']+")
 
     def execute(self, query: str) -> set:
         if ' ' in query:
+            query = query.lower()
             parts = query.split(' ')
             print(f"Parts: {parts}")
             res = self._dictionary.get_ids(parts[0])
             for i in range(1, len(parts)):
                 res.intersection_update(self._dictionary.get_sequence_ids(parts[i-1], parts[i]))
-            return res
+
+            final_res = set()
+            paragraphs = [(pid, self._sub_ex.sub(self._dictionary.get_paragraph(pid), ' ').lower()) for pid in res]
+            for pid, text in paragraphs:
+                if query in text:
+                    final_res.add(pid)
+            return final_res
         else:
             return self._dictionary.get_ids(query)

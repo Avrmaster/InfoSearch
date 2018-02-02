@@ -4,6 +4,8 @@ from multiprocessing.pool import ThreadPool, Pool
 import os
 import re
 
+from cachetools import LFUCache, cached
+
 cdef class Dictionary:
     cdef dict _d
     cdef dict _double_d
@@ -22,8 +24,8 @@ cdef class Dictionary:
         chunk_size = 15
         chunks = [(i*chunk_size, (i+1)*chunk_size) for i in range(files_cnt//chunk_size)]
         if chunks[-1][1] != files_cnt:
-            chunks.append((chunks[-1][1], files_cnt-1))
-        print(f"Splitting |{to_index_path}| into {len(chunks)} chunks")
+            chunks.append((chunks[-1][1], files_cnt))
+        print(f"Splitting {files_cnt} documents into |{to_index_path}| into {len(chunks)} chunks")
         if len(chunks) > 0:
             ThreadPool(cpu_count()).starmap(Dictionary._add_dir,
                                                       [(self, to_index_path, ch[0], ch[1]) for ch in chunks])
@@ -117,6 +119,18 @@ cdef class Dictionary:
         if p_num < 0 or p_num >= len(self._paragraphs_map):
             raise IndexError(f"Dictionary does not contain paragraph {p_num}")
         return self._paragraphs_map[p_num]
+
+    @cached(cache=LFUCache(maxsize=300))
+    def get_paragraph(self, p_num):
+        if p_num < 0 or p_num >= len(self._paragraphs_map):
+            raise IndexError(f"Dictionary does not contain paragraph {p_num}")
+        fpath, lnum = self.get_paragraph_info(p_num)
+        with open(fpath) as f:
+            for j, l in enumerate(f):
+                print(f"\ropening{'.'*(j%3)+' '*(3-j%3)}{(j+1)*100//(lnum+1)}%", end='')
+                if j == lnum:
+                    print(end='\r')
+                    return l
 
     def __contains__(self, item):
         return item in self._d
