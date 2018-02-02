@@ -156,7 +156,7 @@ cdef class Dictionary:
         return len(self._d)
 
     def __sizeof__(self):
-        return self._d.__sizeof__()
+        return self._d.__sizeof__() + self._double_d.__sizeof__() + self._pos_d.__sizeof__()
 
     def __str__(self):
         printables = []

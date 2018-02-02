@@ -5845,7 +5845,7 @@ static Py_ssize_t __pyx_pf_9optimized_10dictionary_10Dictionary_22__len__(struct
  *         return len(self._d)
  * 
  *     def __sizeof__(self):             # <<<<<<<<<<<<<<
- *         return self._d.__sizeof__()
+ *         return self._d.__sizeof__() + self._double_d.__sizeof__() + self._pos_d.__sizeof__()
  * 
  */
 
@@ -5868,12 +5868,13 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_24__sizeof__(stru
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__sizeof__", 0);
 
   /* "optimized/dictionary.pyx":159
  * 
  *     def __sizeof__(self):
- *         return self._d.__sizeof__()             # <<<<<<<<<<<<<<
+ *         return self._d.__sizeof__() + self._double_d.__sizeof__() + self._pos_d.__sizeof__()             # <<<<<<<<<<<<<<
  * 
  *     def __str__(self):
  */
@@ -5898,6 +5899,54 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_24__sizeof__(stru
   }
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->_double_d, __pyx_n_s_sizeof); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 159, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = NULL;
+  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+    }
+  }
+  if (__pyx_t_4) {
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 159, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  } else {
+    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 159, __pyx_L1_error)
+  }
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = PyNumber_Add(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 159, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->_pos_d, __pyx_n_s_sizeof); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_4 = NULL;
+  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_1);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
+      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_1, function);
+    }
+  }
+  if (__pyx_t_4) {
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 159, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  } else {
+    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 159, __pyx_L1_error)
+  }
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = PyNumber_Add(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
@@ -5906,7 +5955,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_24__sizeof__(stru
  *         return len(self._d)
  * 
  *     def __sizeof__(self):             # <<<<<<<<<<<<<<
- *         return self._d.__sizeof__()
+ *         return self._d.__sizeof__() + self._double_d.__sizeof__() + self._pos_d.__sizeof__()
  * 
  */
 
@@ -5915,6 +5964,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_24__sizeof__(stru
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
   __Pyx_AddTraceback("optimized.dictionary.Dictionary.__sizeof__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -5924,7 +5974,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_24__sizeof__(stru
 }
 
 /* "optimized/dictionary.pyx":161
- *         return self._d.__sizeof__()
+ *         return self._d.__sizeof__() + self._double_d.__sizeof__() + self._pos_d.__sizeof__()
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
  *         printables = []
@@ -6233,7 +6283,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_26__str__(struct 
   goto __pyx_L0;
 
   /* "optimized/dictionary.pyx":161
- *         return self._d.__sizeof__()
+ *         return self._d.__sizeof__() + self._double_d.__sizeof__() + self._pos_d.__sizeof__()
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
  *         printables = []

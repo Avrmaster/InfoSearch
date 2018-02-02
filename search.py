@@ -98,6 +98,7 @@ class PhraseSearch(Search):
 class PositionalSearch(Search):
     def __init__(self, d: Dictionary):
         self._dictionary = d
+        self._sub_ex = re.compile(" +")
 
     def execute(self, query: str) -> set:
         """
@@ -106,8 +107,13 @@ class PositionalSearch(Search):
         Words (except first) may be replaced with asterisk *
         :return: set of paragraphs' ids
         """
+        query = self._sub_ex.sub(' ', query).strip()
+
         if ' ' in query:
             parts = query.split(' ')
+            # query_re_raw = ".*{}.*".format(query.replace('*', r"[\w'-]+").replace(' ', r"[^\w'-]+"))
+            query_re_raw = query.replace('*', r"[\w'-]+").replace(' ', r"[^\w'-]+")
+            query_re = re.compile(query_re_raw, flags=re.IGNORECASE)
 
             phrase_index = dict()
             for part in parts:
@@ -128,7 +134,9 @@ class PositionalSearch(Search):
                     if locations[i-1] + 1 == locations[i]:
                         maximum += 1
                         if maximum >= len(parts):
-                            res.add(key)
+                            p: str = self._dictionary.get_paragraph(key)
+                            if query_re.findall(p):
+                                res.add(key)
                             break
                     else:
                         maximum = 1
