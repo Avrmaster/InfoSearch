@@ -19,8 +19,7 @@ if __name__ == "__main__":
     # bs = PhraseSearch(dictionary)
     bs = PositionalSearch(dictionary)
     while True:
-        # query = input("Enter your query (empty to quit): ")
-        query = "be * * * be"
+        query = input("Enter your query (empty to quit): ")
         if not query:
             break
         paragraphs = bs.execute(query)
@@ -29,4 +28,3 @@ if __name__ == "__main__":
             print(f"Result {(i+1)} (in {dictionary.get_paragraph_info(p)[0]}): \n{dictionary.get_paragraph(p)}")
             if input() != "":
                 break
-        break

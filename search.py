@@ -108,31 +108,6 @@ class PositionalSearch(Search):
         """
         if ' ' in query:
             parts = query.split(' ')
-            if parts[0] == '*':
-                # raise ValueError("no '*' at the beginning of query, bullshit. Read docs")
-                return set()
-
-            def get_locations(positions: dict) -> set:
-                locations = set()
-                for val in positions.values():
-                    for v in val:
-                        locations.add(v)
-                return locations
-
-            # last_positions: dict = None
-            # last_locations: set = None
-            # for part in parts:
-            #     if part == '*':
-            #         last_locations = map(lambda l: l+1, last_locations)
-            #     else:
-            #         current_positions = self._dictionary.get_positions(part)
-            #         current_locations = get_locations(current_positions)
-            #         for key in current_positions.keys():
-            #             pass
-            #
-            #         last_positions = current_positions
-            #         last_locations = current_locations
-            # return set(last_positions.keys())
 
             phrase_index = dict()
             for part in parts:
@@ -154,6 +129,7 @@ class PositionalSearch(Search):
                         maximum += 1
                         if maximum >= len(parts):
                             res.add(key)
+                            break
                     else:
                         maximum = 1
             return res
