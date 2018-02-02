@@ -1,20 +1,25 @@
 from __future__ import print_function
 from multiprocessing import cpu_count
-from multiprocessing.pool import ThreadPool, Pool
+from multiprocessing.pool import ThreadPool
+from optimized.collections import LongLinkedSet
 import os
 import re
 
 from cachetools import LFUCache, cached
 
+use_multi_thread: bool = False
+
 cdef class Dictionary:
     cdef dict _d
     cdef dict _double_d
+    cdef dict _pos_d
     cdef int _docs_cnt
     cdef list _paragraphs_map
 
     def __init__(self):
         self._d = dict()
         self._double_d = dict()
+        self._pos_d = dict()
         self._docs_cnt = 0
         self._paragraphs_map = []
 
@@ -23,10 +28,10 @@ cdef class Dictionary:
         files_cnt = len(os.listdir(to_index_path))
         chunk_size = 15
         chunks = [(i*chunk_size, (i+1)*chunk_size) for i in range(files_cnt//chunk_size)]
-        if chunks[-1][1] != files_cnt:
+        if use_multi_thread and chunks[-1][1] != files_cnt:
             chunks.append((chunks[-1][1], files_cnt))
-        print(f"Splitting {files_cnt} documents into |{to_index_path}| into {len(chunks)} chunks")
-        if len(chunks) > 0:
+        if len(chunks) > 0 and use_multi_thread:
+            print(f"Splitting {files_cnt} documents into |{to_index_path}| into {len(chunks)} chunks")
             ThreadPool(cpu_count()).starmap(Dictionary._add_dir,
                                                       [(self, to_index_path, ch[0], ch[1]) for ch in chunks])
         else:
@@ -71,10 +76,11 @@ cdef class Dictionary:
                     if len(line) < 2:
                         continue
                     prev = None
-                    for word in split_ex.split(line):
+                    for word_pos, word in enumerate(split_ex.split(line)):
                         word = strip_ex.sub('', word)
                         if len(word) > 0:
                             self._add_word(word, len(self._paragraphs_map))
+                            self._add_pos_word(word, len(self._paragraphs_map), word_pos)
                             words_cnt += 1
                             if prev is not None:
                                 self._add_sequence(prev, word, len(self._paragraphs_map))
@@ -84,7 +90,6 @@ cdef class Dictionary:
             print(f'\rReading{"."*(doc_id%3)}{" "*(3-doc_id%3)}{(read_size*100)/total_size}% '
                   f'{doc_id+1}/{len(docs_list)} - {filename}', end='')
 
-        return self
         # print("\rReading 100%")
         # print(f"Total words read: {words_cnt}")
 
@@ -94,7 +99,6 @@ cdef class Dictionary:
         s = self._d[w] = self._d.get(w, set())
         s.add(ind)
         self._docs_cnt = max(self._docs_cnt, ind + 1)
-        pass
 
     cdef _add_sequence(self, str w1, str w2, int ind):
         w1 = w1.capitalize()
@@ -104,13 +108,23 @@ cdef class Dictionary:
         cdef set s
         s = self._double_d[seq] = self._double_d.get(seq, set())
         s.add(ind)
-        self._docs_cnt = max(self._docs_cnt, ind+1)
+
+    cdef _add_pos_word(self, str w, int ind, int pos):
+        w = w.capitalize()
+        cdef dict dd
+        dd = self._pos_d[w] = self._pos_d.get(w, dict())
+        cdef set positions
+        positions = dd[ind] = dd.get(ind, set())
+        positions.add(pos)
 
     cpdef set get_ids(self, str word):
         return self._d.get(word.capitalize(), set())
 
     cpdef set get_sequence_ids(self, str word1, str word2):
         return self._double_d.get(word1.capitalize()+'\t'+word2.capitalize(), set())
+
+    cpdef dict get_positions(self, str word):
+        return self._pos_d.get(word.capitalize(), dict())
 
     cpdef docs_cnt(self):
         return self._docs_cnt
