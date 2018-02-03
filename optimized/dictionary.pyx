@@ -124,7 +124,7 @@ cdef class Dictionary:
         return self._double_d.get(word1.capitalize()+'\t'+word2.capitalize(), set())
 
     cpdef dict get_positions(self, str word):
-        return self._pos_d.get(word.capitalize(), dict())
+        return dict(self._pos_d.get(word.capitalize(), dict()))  # creating a copy
 
     cpdef docs_cnt(self):
         return self._docs_cnt

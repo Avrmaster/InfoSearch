@@ -4554,7 +4554,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_8get_sequence_ids
  *         return self._double_d.get(word1.capitalize()+'\t'+word2.capitalize(), set())
  * 
  *     cpdef dict get_positions(self, str word):             # <<<<<<<<<<<<<<
- *         return self._pos_d.get(word.capitalize(), dict())
+ *         return dict(self._pos_d.get(word.capitalize(), dict()))
  * 
  */
 
@@ -4632,7 +4632,7 @@ static PyObject *__pyx_f_9optimized_10dictionary_10Dictionary_get_positions(stru
   /* "optimized/dictionary.pyx":127
  * 
  *     cpdef dict get_positions(self, str word):
- *         return self._pos_d.get(word.capitalize(), dict())             # <<<<<<<<<<<<<<
+ *         return dict(self._pos_d.get(word.capitalize(), dict()))             # <<<<<<<<<<<<<<
  * 
  *     cpdef docs_cnt(self):
  */
@@ -4667,7 +4667,14 @@ static PyObject *__pyx_f_9optimized_10dictionary_10Dictionary_get_positions(stru
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(PyDict_CheckExact(__pyx_t_3))||((__pyx_t_3) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_t_3)->tp_name), 0))) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_3);
+  PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_3);
+  __pyx_t_3 = 0;
+  __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)(&PyDict_Type)), __pyx_t_2, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = ((PyObject*)__pyx_t_3);
   __pyx_t_3 = 0;
   goto __pyx_L0;
@@ -4676,7 +4683,7 @@ static PyObject *__pyx_f_9optimized_10dictionary_10Dictionary_get_positions(stru
  *         return self._double_d.get(word1.capitalize()+'\t'+word2.capitalize(), set())
  * 
  *     cpdef dict get_positions(self, str word):             # <<<<<<<<<<<<<<
- *         return self._pos_d.get(word.capitalize(), dict())
+ *         return dict(self._pos_d.get(word.capitalize(), dict()))
  * 
  */
 
@@ -4737,7 +4744,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_10get_positions(s
 }
 
 /* "optimized/dictionary.pyx":129
- *         return self._pos_d.get(word.capitalize(), dict())
+ *         return dict(self._pos_d.get(word.capitalize(), dict()))
  * 
  *     cpdef docs_cnt(self):             # <<<<<<<<<<<<<<
  *         return self._docs_cnt
@@ -4803,7 +4810,7 @@ static PyObject *__pyx_f_9optimized_10dictionary_10Dictionary_docs_cnt(struct __
   goto __pyx_L0;
 
   /* "optimized/dictionary.pyx":129
- *         return self._pos_d.get(word.capitalize(), dict())
+ *         return dict(self._pos_d.get(word.capitalize(), dict()))
  * 
  *     cpdef docs_cnt(self):             # <<<<<<<<<<<<<<
  *         return self._docs_cnt

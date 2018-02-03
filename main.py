@@ -8,7 +8,7 @@ import sys
 if __name__ == "__main__":
     dictionary = Dictionary()
     start_time = datetime.now()
-    dictionary.add_dir('documents/txtAll')
+    dictionary.add_dir('documents/txt')
     end_time = datetime.now()
     print(f"    Indexed in {(end_time-start_time).total_seconds()} secs")
     # print(dictionary, end='\n\n')
