@@ -2497,7 +2497,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_4_add_dir(struct 
   PyObject *__pyx_v_filepath = 0;
   long __pyx_v_line_num;
   PyObject *__pyx_v_line = 0;
-  PyObject *__pyx_v_prev = 0;
+  CYTHON_UNUSED PyObject *__pyx_v_prev = 0;
   PyObject *__pyx_v_word = 0;
   PyObject *__pyx_v_file = NULL;
   PyObject *__pyx_v_word_pos = NULL;
@@ -2528,8 +2528,8 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_4_add_dir(struct 
   PyObject *__pyx_t_22 = NULL;
   Py_ssize_t __pyx_t_23;
   int __pyx_t_24;
-  int __pyx_t_25;
-  PyObject *__pyx_t_26 = NULL;
+  PyObject *__pyx_t_25 = NULL;
+  int __pyx_t_26;
   __Pyx_RefNannySetupContext("_add_dir", 0);
 
   /* "optimized/dictionary.pyx":52
@@ -3172,7 +3172,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_4_add_dir(struct 
  *                             self._add_word(word, len(self._paragraphs_map))
  *                             self._add_pos_word(word, len(self._paragraphs_map), word_pos)             # <<<<<<<<<<<<<<
  *                             words_cnt += 1
- *                             if prev is not None:
+ *                             # if prev is not None:
  */
                   __pyx_t_2 = __pyx_v_self->_paragraphs_map;
                   __Pyx_INCREF(__pyx_t_2);
@@ -3191,53 +3191,14 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_4_add_dir(struct 
  *                             self._add_word(word, len(self._paragraphs_map))
  *                             self._add_pos_word(word, len(self._paragraphs_map), word_pos)
  *                             words_cnt += 1             # <<<<<<<<<<<<<<
- *                             if prev is not None:
- *                                 self._add_sequence(prev, word, len(self._paragraphs_map))
+ *                             # if prev is not None:
+ *                             #     self._add_sequence(prev, word, len(self._paragraphs_map))
  */
                   __pyx_v_words_cnt = (__pyx_v_words_cnt + 1);
 
-                  /* "optimized/dictionary.pyx":85
- *                             self._add_pos_word(word, len(self._paragraphs_map), word_pos)
- *                             words_cnt += 1
- *                             if prev is not None:             # <<<<<<<<<<<<<<
- *                                 self._add_sequence(prev, word, len(self._paragraphs_map))
- *                             prev = word
- */
-                  __pyx_t_19 = (__pyx_v_prev != ((PyObject*)Py_None));
-                  __pyx_t_24 = (__pyx_t_19 != 0);
-                  if (__pyx_t_24) {
-
-                    /* "optimized/dictionary.pyx":86
- *                             words_cnt += 1
- *                             if prev is not None:
- *                                 self._add_sequence(prev, word, len(self._paragraphs_map))             # <<<<<<<<<<<<<<
- *                             prev = word
- *                     self._paragraphs_map.append((filepath, line_num))
- */
-                    __pyx_t_2 = __pyx_v_self->_paragraphs_map;
-                    __Pyx_INCREF(__pyx_t_2);
-                    if (unlikely(__pyx_t_2 == Py_None)) {
-                      PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-                      __PYX_ERR(0, 86, __pyx_L13_error)
-                    }
-                    __pyx_t_23 = PyList_GET_SIZE(__pyx_t_2); if (unlikely(__pyx_t_23 == ((Py_ssize_t)-1))) __PYX_ERR(0, 86, __pyx_L13_error)
-                    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-                    __pyx_t_2 = ((struct __pyx_vtabstruct_9optimized_10dictionary_Dictionary *)__pyx_v_self->__pyx_vtab)->_add_sequence(__pyx_v_self, __pyx_v_prev, __pyx_v_word, __pyx_t_23); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 86, __pyx_L13_error)
-                    __Pyx_GOTREF(__pyx_t_2);
-                    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-
-                    /* "optimized/dictionary.pyx":85
- *                             self._add_pos_word(word, len(self._paragraphs_map), word_pos)
- *                             words_cnt += 1
- *                             if prev is not None:             # <<<<<<<<<<<<<<
- *                                 self._add_sequence(prev, word, len(self._paragraphs_map))
- *                             prev = word
- */
-                  }
-
                   /* "optimized/dictionary.pyx":87
- *                             if prev is not None:
- *                                 self._add_sequence(prev, word, len(self._paragraphs_map))
+ *                             # if prev is not None:
+ *                             #     self._add_sequence(prev, word, len(self._paragraphs_map))
  *                             prev = word             # <<<<<<<<<<<<<<
  *                     self._paragraphs_map.append((filepath, line_num))
  *             read_size += os.path.getsize(filepath) // 1024
@@ -3266,7 +3227,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_4_add_dir(struct 
               __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
               /* "optimized/dictionary.pyx":88
- *                                 self._add_sequence(prev, word, len(self._paragraphs_map))
+ *                             #     self._add_sequence(prev, word, len(self._paragraphs_map))
  *                             prev = word
  *                     self._paragraphs_map.append((filepath, line_num))             # <<<<<<<<<<<<<<
  *             read_size += os.path.getsize(filepath) // 1024
@@ -3286,7 +3247,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_4_add_dir(struct 
               __Pyx_GIVEREF(__pyx_t_1);
               PyTuple_SET_ITEM(__pyx_t_10, 1, __pyx_t_1);
               __pyx_t_1 = 0;
-              __pyx_t_25 = __Pyx_PyList_Append(__pyx_v_self->_paragraphs_map, __pyx_t_10); if (unlikely(__pyx_t_25 == ((int)-1))) __PYX_ERR(0, 88, __pyx_L13_error)
+              __pyx_t_24 = __Pyx_PyList_Append(__pyx_v_self->_paragraphs_map, __pyx_t_10); if (unlikely(__pyx_t_24 == ((int)-1))) __PYX_ERR(0, 88, __pyx_L13_error)
               __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
               /* "optimized/dictionary.pyx":75
@@ -3328,16 +3289,16 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_4_add_dir(struct 
             __Pyx_GOTREF(__pyx_t_1);
             __pyx_t_2 = PyTuple_Pack(3, __pyx_t_4, __pyx_t_10, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 74, __pyx_L15_except_error)
             __Pyx_GOTREF(__pyx_t_2);
-            __pyx_t_26 = __Pyx_PyObject_Call(__pyx_t_12, __pyx_t_2, NULL);
+            __pyx_t_25 = __Pyx_PyObject_Call(__pyx_t_12, __pyx_t_2, NULL);
             __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
             __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-            if (unlikely(!__pyx_t_26)) __PYX_ERR(0, 74, __pyx_L15_except_error)
-            __Pyx_GOTREF(__pyx_t_26);
-            __pyx_t_24 = __Pyx_PyObject_IsTrue(__pyx_t_26);
-            __Pyx_DECREF(__pyx_t_26); __pyx_t_26 = 0;
-            if (__pyx_t_24 < 0) __PYX_ERR(0, 74, __pyx_L15_except_error)
-            __pyx_t_19 = ((!(__pyx_t_24 != 0)) != 0);
-            if (__pyx_t_19) {
+            if (unlikely(!__pyx_t_25)) __PYX_ERR(0, 74, __pyx_L15_except_error)
+            __Pyx_GOTREF(__pyx_t_25);
+            __pyx_t_19 = __Pyx_PyObject_IsTrue(__pyx_t_25);
+            __Pyx_DECREF(__pyx_t_25); __pyx_t_25 = 0;
+            if (__pyx_t_19 < 0) __PYX_ERR(0, 74, __pyx_L15_except_error)
+            __pyx_t_26 = ((!(__pyx_t_19 != 0)) != 0);
+            if (__pyx_t_26) {
               __Pyx_GIVEREF(__pyx_t_4);
               __Pyx_GIVEREF(__pyx_t_10);
               __Pyx_XGIVEREF(__pyx_t_1);
@@ -3377,11 +3338,11 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_4_add_dir(struct 
         }
         __pyx_L12:;
       }
-      goto __pyx_L31;
+      goto __pyx_L30;
       __pyx_L7_error:;
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
       goto __pyx_L1_error;
-      __pyx_L31:;
+      __pyx_L30:;
     }
 
     /* "optimized/dictionary.pyx":89
@@ -4554,7 +4515,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_8get_sequence_ids
  *         return self._double_d.get(word1.capitalize()+'\t'+word2.capitalize(), set())
  * 
  *     cpdef dict get_positions(self, str word):             # <<<<<<<<<<<<<<
- *         return dict(self._pos_d.get(word.capitalize(), dict()))
+ *         return dict(self._pos_d.get(word.capitalize(), dict()))  # creating a copy
  * 
  */
 
@@ -4632,7 +4593,7 @@ static PyObject *__pyx_f_9optimized_10dictionary_10Dictionary_get_positions(stru
   /* "optimized/dictionary.pyx":127
  * 
  *     cpdef dict get_positions(self, str word):
- *         return dict(self._pos_d.get(word.capitalize(), dict()))             # <<<<<<<<<<<<<<
+ *         return dict(self._pos_d.get(word.capitalize(), dict()))  # creating a copy             # <<<<<<<<<<<<<<
  * 
  *     cpdef docs_cnt(self):
  */
@@ -4683,7 +4644,7 @@ static PyObject *__pyx_f_9optimized_10dictionary_10Dictionary_get_positions(stru
  *         return self._double_d.get(word1.capitalize()+'\t'+word2.capitalize(), set())
  * 
  *     cpdef dict get_positions(self, str word):             # <<<<<<<<<<<<<<
- *         return dict(self._pos_d.get(word.capitalize(), dict()))
+ *         return dict(self._pos_d.get(word.capitalize(), dict()))  # creating a copy
  * 
  */
 
@@ -4744,7 +4705,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_10get_positions(s
 }
 
 /* "optimized/dictionary.pyx":129
- *         return dict(self._pos_d.get(word.capitalize(), dict()))
+ *         return dict(self._pos_d.get(word.capitalize(), dict()))  # creating a copy
  * 
  *     cpdef docs_cnt(self):             # <<<<<<<<<<<<<<
  *         return self._docs_cnt
@@ -4810,7 +4771,7 @@ static PyObject *__pyx_f_9optimized_10dictionary_10Dictionary_docs_cnt(struct __
   goto __pyx_L0;
 
   /* "optimized/dictionary.pyx":129
- *         return dict(self._pos_d.get(word.capitalize(), dict()))
+ *         return dict(self._pos_d.get(word.capitalize(), dict()))  # creating a copy
  * 
  *     cpdef docs_cnt(self):             # <<<<<<<<<<<<<<
  *         return self._docs_cnt

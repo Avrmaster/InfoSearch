@@ -112,42 +112,6 @@ class PositionalSearch(Search):
         if ' ' in query:
             parts = query.split(' ')
 
-            # query_re_raw = query.replace('*', r"[\w'-]+").replace(' ', r"[^\w'-]+")
-            # query_re = re.compile(query_re_raw, flags=re.IGNORECASE)
-            # phrase_index = dict()
-            # for part in parts:
-            #     if part == '*':
-            #         for key, value in phrase_index.items():
-            #             phrase_index[key] = phrase_index[key].union(set(map(lambda l: l+1, value)))
-            #     else:
-            #         for key, value in self._dictionary.get_positions(part).items():
-            #             if key not in phrase_index:
-            #                 phrase_index[key] = value
-            #             else:
-            #                 phrase_index[key] = phrase_index[key].union(value)
-            # res = set()
-            # for key, value in phrase_index.items():
-            #     locations = sorted(value)
-            #     maximum = 1
-            #     for i in range(1, len(locations)):
-            #         if locations[i-1] + 1 == locations[i]:
-            #             maximum += 1
-            #             if maximum >= len(parts):
-            #                 p: str = self._dictionary.get_paragraph(key)
-            #                 if query_re.findall(p):
-            #                     res.add(key)
-            #                 break
-            #         else:
-            #             maximum = 1
-            # return res
-
-            # def get_locations(positions: dict) -> set:
-            #     locations = set()
-            #     for val in positions.values():
-            #         for v in val:
-            #             locations.add(v)
-            #     return locations
-
             def filter_positions(last_part_positions: dict, new_part_positions: dict) -> dict:
                 r = dict()
                 for docId, locs in new_part_positions.items():
