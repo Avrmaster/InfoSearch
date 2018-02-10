@@ -4,6 +4,6 @@ import numpy
 
 
 setup(
-    ext_modules=cythonize(["optimized/collections.pyx", "optimized/dictionary.pyx"]),
+    ext_modules=cythonize(["optimized/collections.pyx", "optimized/dictionary.pyx", "optimized/trie.pyx"]),
     include_dirs=[numpy.get_include()]
 )

@@ -19,7 +19,7 @@ if __name__ == "__main__":
     # bs = PhraseSearch(dictionary)
     bs = PositionalSearch(dictionary)
     while True:
-        query = input("Enter your query (empty to quit): ")
+        query = input(f"Enter your query |{bs.__class__.__name__}| (empty to quit): ")
         if not query:
             break
         paragraphs = bs.execute(query)

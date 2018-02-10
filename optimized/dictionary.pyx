@@ -7,7 +7,7 @@ import re
 
 from cachetools import LFUCache, cached
 
-use_multi_thread: bool = False
+_use_multi_thread: bool = False
 
 cdef class Dictionary:
     cdef dict _d
@@ -28,9 +28,9 @@ cdef class Dictionary:
         files_cnt = len(os.listdir(to_index_path))
         chunk_size = 15
         chunks = [(i*chunk_size, (i+1)*chunk_size) for i in range(files_cnt//chunk_size)]
-        if use_multi_thread and chunks[-1][1] != files_cnt:
+        if _use_multi_thread and chunks[-1][1] != files_cnt:
             chunks.append((chunks[-1][1], files_cnt))
-        if len(chunks) > 0 and use_multi_thread:
+        if len(chunks) > 0 and _use_multi_thread:
             print(f"Splitting {files_cnt} documents into |{to_index_path}| into {len(chunks)} chunks")
             ThreadPool(cpu_count()).starmap(Dictionary._add_dir,
                                                       [(self, to_index_path, ch[0], ch[1]) for ch in chunks])
@@ -46,8 +46,8 @@ cdef class Dictionary:
         :return: paragraph_map, a map from paragraph_id (index) to Tuple of it's (document_filepath, line_num)
         :rtype: List[Tuple]
         """
-        # print(f"Indexing directory {to_index_path} [{start}:{end}]..")
-        # print(f"_add_dir {super().__str__()}")
+        if not _use_multi_thread:
+            print(f"Indexing directory {to_index_path} [{start}:{end}]..")
 
         split_ex = re.compile(r"[^\w'-]+", flags=re.IGNORECASE)
         strip_ex = re.compile(r"^['-]+|['-]+$", flags=re.IGNORECASE)
@@ -90,8 +90,9 @@ cdef class Dictionary:
             print(f'\rReading{"."*(doc_id%3)}{" "*(3-doc_id%3)}{(read_size*100)/total_size}% '
                   f'{doc_id+1}/{len(docs_list)} - {filename}', end='')
 
-        # print("\rReading 100%")
-        # print(f"Total words read: {words_cnt}")
+        if not _use_multi_thread:
+            print("\rReading 100%")
+            print(f"Total words read: {words_cnt}")
 
     cdef _add_word(self, str w, int ind):
         w = w.capitalize()
