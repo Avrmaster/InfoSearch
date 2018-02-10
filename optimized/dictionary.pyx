@@ -24,7 +24,7 @@ cdef class Dictionary:
         self._double_d = dict()
         self._pos_d = dict()
         self._trie_d = TrieDictionary()
-        self._trie_rev_d = TrieDictionary(revers=True)
+        self._trie_rev_d = TrieDictionary()
 
         self._docs_cnt = 0
         self._paragraphs_map = []
@@ -126,7 +126,7 @@ cdef class Dictionary:
 
     cdef _add_trie_word(self, str w, int ind):
         self._trie_d.add_word(w, ind)
-        self._trie_rev_d.add_word(w, ind)
+        self._trie_rev_d.add_word(w[::-1], ind)
 
     cpdef set get_ids(self, str word):
         return self._d.get(word.capitalize(), set())
@@ -138,7 +138,10 @@ cdef class Dictionary:
         return dict(self._pos_d.get(word.capitalize(), dict()))  # creating a copy
 
     cpdef dict get_trie_dict(self, str word, bint revers=False):
-        return (self._trie_rev_d if revers else self._trie_d).query(word)
+        if not revers:
+            return self._trie_d.query(word)
+        else:
+            return {k[::-1]: v for k, v in self._trie_rev_d.query(word[::-1]).items()}
 
     cpdef docs_cnt(self):
         return self._docs_cnt

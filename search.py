@@ -149,11 +149,11 @@ class TrieJokerSearch(Search):
             start: str = query[:query.index('*')]
             end: str = query[query.rindex('*')+1:]
 
-            res_dict: dict
+            res_dict: dict = {}
             if start and end:
                 s_d = self._dictionary.get_trie_dict(start)
                 e_d = self._dictionary.get_trie_dict(end, revers=True)
-                print(f"Got {s_d}")
+                print(f"Got {s_d}\n\n\n")
                 print(f"And {e_d}\n")
             else:
                 res_dict = self._dictionary.get_trie_dict(start if start else end, len(start) == 0)

@@ -16,15 +16,11 @@ cdef class Node:
 
 cdef class TrieDictionary:
     cdef Node root
-    cdef bint revers
 
-    def __init__(TrieDictionary self, bint revers = False):
+    def __init__(TrieDictionary self):
         self.root = Node('\0')
-        self.revers = revers
 
     cpdef add_word(TrieDictionary self, str word, int doc_id):
-        if self.revers:
-            word = word[::-1]
         cdef Node cur_node
         cur_node = self.root
         cdef:
@@ -50,9 +46,7 @@ cdef class TrieDictionary:
         node = self.get(word)
         return node is None and len(node.ids()) > 0
 
-    cpdef Node get(TrieDictionary self, str word):
-        if self.revers:
-            word = word[::-1]
+    cdef Node get(TrieDictionary self, str word):
         cdef Node node
         node = self.root
         cdef str ch
@@ -81,11 +75,11 @@ cdef class TrieDictionary:
     cpdef dict query(TrieDictionary self, str query):
         return self.collect_words(query, self.get(query))
 
-    cdef dict collect_words(TrieDictionary self, str start_string, Node node):
+    cdef dict collect_words(TrieDictionary self, str word, Node node):
         cdef dict words
         words = {}
-        if len(start_string) > 0:
-            self.collect_words_part(node, words, start_string[:-1])
+        if len(word) > 0:
+            self.collect_words_part(node, words, word[:-1])
         return words
 
     cdef collect_words_part(TrieDictionary self, Node node, dict word_dict, str current_word):
