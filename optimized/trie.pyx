@@ -1,19 +1,15 @@
 cdef class Node:
     cdef dict hashMap
     cdef str ch
-    cdef bint is_complete
-    cdef list ids
+    cdef set _ids
 
     def __init__(Node self, str ch):
         self.ch = ch
         self.hashMap = dict()
-        self.is_complete = False
+        self._ids = set()
 
-    def is_completed(Node self):
-        return self.is_complete
-
-    def set_completed(Node self, bint is_complete):
-        self.is_complete = is_complete
+    cpdef set ids(Node self):
+        return self._ids
 
 cdef class TrieDictionary:
     cdef Node root
@@ -28,24 +24,28 @@ cdef class TrieDictionary:
             word = word[::-1]
         cdef Node cur_node
         cur_node = self.root
-        cdef int i
-        cdef str ch
+        cdef:
+            int i
+            str ch
+            bint last
         for i, ch in enumerate(word):
-            cur_node = self.add_char(cur_node, ch, i + 1 == len(word))
+            last = i + 1 == len(word)
+            cur_node = self.add_char(cur_node, ch, doc_id if last else -1)
 
-    cdef Node add_char(TrieDictionary self, Node node, str ch, bint is_final):
+    cdef Node add_char(TrieDictionary self, Node node, str ch, int doc_id):
         cdef Node needed_branch
         try:
             needed_branch = <Node>node.hashMap[ch]
         except KeyError:
             needed_branch = node.hashMap[ch] = Node(ch)
-        needed_branch.set_completed(needed_branch.is_completed() or is_final)
+        if doc_id != -1:
+            needed_branch.ids().add(doc_id)
         return needed_branch
 
     cpdef has_word(TrieDictionary self, str word):
         cdef Node node
         node = self.get(word)
-        return node is None and node.is_completed()
+        return node is None and len(node.ids()) > 0
 
     cpdef Node get(TrieDictionary self, str word):
         if self.revers:
@@ -54,73 +54,46 @@ cdef class TrieDictionary:
         node = self.root
         cdef str ch
         for ch in word:
-            node = node.hashMap.get(ch, None)
-            if node is None:
+            if ch in node.hashMap:
+                node = node.hashMap[ch]
+            else:
                 return None
         return node
-
-    cpdef str query(TrieDictionary self, str query, int max_cnt):
-        return self.collect_words(query, self.get(query), max_cnt)
 
     cpdef int count_words(TrieDictionary self):
         return self._count_words(self.root)
 
-    cpdef int _count_words(TrieDictionary self, Node node):
+    cdef int _count_words(TrieDictionary self, Node node):
         if node is None:
             return 0
         cdef int cnt
         cnt = 0
-        if node.is_complete:
+        if len(node.ids()) > 0:
             cnt += 1
         cdef Node n
         for n in node.hashMap.values():
             cnt += self._count_words(n)
         return cnt
 
-    cdef list collect_words(TrieDictionary self, str start_string, Node node, int max_cnt):
-        cdef list words
-        words = []
+    cpdef dict query(TrieDictionary self, str query):
+        return self.collect_words(query, self.get(query))
+
+    cdef dict collect_words(TrieDictionary self, str start_string, Node node):
+        cdef dict words
+        words = {}
         if len(start_string) > 0:
-            self.collect_words_part(node, words, start_string[:-1], max_cnt)
+            self.collect_words_part(node, words, start_string[:-1])
         return words
 
-    cpdef collect_words_part(TrieDictionary self, Node node, list word_list, str current_word, int max_cnt):
-        if len(word_list) >= max_cnt or node is None:
+    cdef collect_words_part(TrieDictionary self, Node node, dict word_dict, str current_word):
+        if node is None:
             return
 
         current_word += node.ch
 
-        if node.is_complete:
-            word_list.append(current_word)
+        if len(node.ids()) > 0:
+            word_dict[current_word] = set(node.ids())
 
         cdef Node n
         for n in node.hashMap.values():
-            if len(word_list) < max_cnt:
-                self.collect_words_part(n, word_list, current_word, max_cnt)
-
-
-                # static public class SearchResult {
-                #         public final bint wordExists;
-                #         public final List<String> suggestions;
-                #
-                #         private SearchResult(bint isWord) {
-                #             this.wordExists = isWord;
-                #             this.suggestions = new LinkedList<>();
-                #         }
-                #
-                #         private SearchResult(bint isWord, List<String> suggestions) {
-                #             this.wordExists = isWord;
-                #             this.suggestions = suggestions;
-                #         }
-                #     }
-                #
-                #     public SearchResult queryWord(String word) {
-                #         List<String> suggestions = new LinkedList<>();
-                #         bint exists = hasWord(word);
-                #         for (String s : query(word, MAX_SUGGESTIONS_COUNT)) {
-                #             suggestions.add(s);
-                #         }
-                #         return new SearchResult(exists, suggestions);
-                #     }
-                #
-                # }
+            self.collect_words_part(n, word_dict, current_word)
