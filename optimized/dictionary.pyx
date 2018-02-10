@@ -1,7 +1,7 @@
 from __future__ import print_function
 from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
-from optimized.collections import LongLinkedSet
+from optimized.trie import TrieDictionary
 import os
 import re
 
@@ -13,6 +13,9 @@ cdef class Dictionary:
     cdef dict _d
     cdef dict _double_d
     cdef dict _pos_d
+    cdef object _trie_d
+    cdef object _trie_rev_d
+
     cdef int _docs_cnt
     cdef list _paragraphs_map
 
@@ -20,10 +23,12 @@ cdef class Dictionary:
         self._d = dict()
         self._double_d = dict()
         self._pos_d = dict()
+        self._trie_d = TrieDictionary()
+        self._trie_rev_d = TrieDictionary(revers=True)
+
         self._docs_cnt = 0
         self._paragraphs_map = []
 
-    # def add_dir(self, to_index_path):
     cpdef add_dir(self, str to_index_path):
         files_cnt = len(os.listdir(to_index_path))
         chunk_size = 15
@@ -66,8 +71,8 @@ cdef class Dictionary:
         cdef str filepath
         cdef long line_num
         cdef str line
-        cdef str prev
         cdef str word
+        cdef int p_id
 
         for doc_id, filename in enumerate(docs_list):
             filepath = to_index_path + '/' + filename
@@ -75,16 +80,14 @@ cdef class Dictionary:
                 for line_num, line in enumerate(file):
                     if len(line) < 2:
                         continue
-                    prev = None
                     for word_pos, word in enumerate(split_ex.split(line)):
-                        word = strip_ex.sub('', word)
+                        # word = strip_ex.sub('', word)
                         if len(word) > 0:
-                            self._add_word(word, len(self._paragraphs_map))
-                            self._add_pos_word(word, len(self._paragraphs_map), word_pos)
+                            p_id = len(self._paragraphs_map)
+                            # self._add_word(word, p_id)
+                            # self._add_pos_word(word, p_id, word_pos)
+                            self._add_trie_word(word, p_id)
                             words_cnt += 1
-                            if prev is not None:
-                                self._add_sequence(prev, word, len(self._paragraphs_map))
-                            prev = word
                     self._paragraphs_map.append((filepath, line_num))
             read_size += os.path.getsize(filepath) // 1024
             print(f'\rReading{"."*(doc_id%3)}{" "*(3-doc_id%3)}{(read_size*100)/total_size}% '
@@ -97,7 +100,10 @@ cdef class Dictionary:
     cdef _add_word(self, str w, int ind):
         w = w.capitalize()
         cdef set s
-        s = self._d[w] = self._d.get(w, set())
+        if w in self._d:
+            s = self._d[w]
+        else:
+            s = self._d[w] = set()
         s.add(ind)
         self._docs_cnt = max(self._docs_cnt, ind + 1)
 
@@ -118,6 +124,10 @@ cdef class Dictionary:
         positions = dd[ind] = dd.get(ind, set())
         positions.add(pos)
 
+    cdef _add_trie_word(self, str w, int ind):
+        self._trie_d.add_word(w, ind)
+        self._trie_rev_d.add_word(w, ind)
+
     cpdef set get_ids(self, str word):
         return self._d.get(word.capitalize(), set())
 
@@ -126,6 +136,8 @@ cdef class Dictionary:
 
     cpdef dict get_positions(self, str word):
         return dict(self._pos_d.get(word.capitalize(), dict()))  # creating a copy
+
+    cpdef dict get_postions
 
     cpdef docs_cnt(self):
         return self._docs_cnt
@@ -157,7 +169,8 @@ cdef class Dictionary:
         return len(self._d)
 
     def __sizeof__(self):
-        return self._d.__sizeof__() + self._double_d.__sizeof__() + self._pos_d.__sizeof__()
+        return self._d.__sizeof__() + self._double_d.__sizeof__() + self._pos_d.__sizeof__()\
+                                    + self._trie_d.__sizeof__() + self._trie_rev_d.__sizeof__()
 
     def __str__(self):
         printables = []

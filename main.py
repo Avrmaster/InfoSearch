@@ -15,9 +15,9 @@ if __name__ == "__main__":
     print(f"Unique words count: {len(dictionary)}", end='\n\n')
     print(f"Dictionary system size: ~{sys.getsizeof(dictionary)//1024}kB\n")
 
-    # bs = BooleanSearch(dictionary)
+    bs = BooleanSearch(dictionary)
     # bs = PhraseSearch(dictionary)
-    bs = PositionalSearch(dictionary)
+    # bs = PositionalSearch(dictionary)
     while True:
         query = input(f"Enter your query |{bs.__class__.__name__}| (empty to quit): ")
         if not query:
