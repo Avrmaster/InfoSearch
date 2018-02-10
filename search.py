@@ -1,5 +1,5 @@
 import re
-from typing import List
+from typing import List, Set, Dict
 from itertools import chain
 from optimized.dictionary import Dictionary
 
@@ -138,15 +138,32 @@ class PositionalSearch(Search):
             return self._dictionary.get_ids(query)
 
 
+class TrieJokerSearch(Search):
+    def __init__(self, d: Dictionary):
+        self._dictionary = d
 
+    def execute(self, query: str) -> set:
+        regex = re.compile(query.replace('*', '.*'))
 
+        if '*' in query:
+            start: str = query[:query.index('*')]
+            end: str = query[query.rindex('*')+1:]
 
+            res_dict: dict
+            if start and end:
+                s_d = self._dictionary.get_trie_dict(start)
+                e_d = self._dictionary.get_trie_dict(end, revers=True)
+                print(f"Got {s_d}")
+                print(f"And {e_d}\n")
+            else:
+                res_dict = self._dictionary.get_trie_dict(start if start else end, len(start) == 0)
 
+        else:
+            res_dict = self._dictionary.get_trie_dict(query)
 
-
-
-
-
-
-
-
+        res = set()
+        for k, v in res_dict.items():
+            if regex.match(k):
+                print(f"Found word {k}")
+                res = res.union(v)
+        return res

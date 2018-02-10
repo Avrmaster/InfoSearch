@@ -137,7 +137,8 @@ cdef class Dictionary:
     cpdef dict get_positions(self, str word):
         return dict(self._pos_d.get(word.capitalize(), dict()))  # creating a copy
 
-    cpdef dict get_postions
+    cpdef dict get_trie_dict(self, str word, bint revers=False):
+        return (self._trie_rev_d if revers else self._trie_d).query(word)
 
     cpdef docs_cnt(self):
         return self._docs_cnt
@@ -166,7 +167,8 @@ cdef class Dictionary:
         return iter(self._d.items())
 
     def __len__(self):
-        return len(self._d)
+        # return len(self._d)
+        return self._trie_d.count_words()
 
     def __sizeof__(self):
         return self._d.__sizeof__() + self._double_d.__sizeof__() + self._pos_d.__sizeof__()\
