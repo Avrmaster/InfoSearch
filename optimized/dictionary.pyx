@@ -15,6 +15,8 @@ cdef class Dictionary:
     cdef dict _pos_d
     cdef object _trie_d
     cdef object _trie_rev_d
+    cdef dict _perm_d
+    cdef dict _trigram_d
 
     cdef int _docs_cnt
     cdef list _paragraphs_map
@@ -25,6 +27,8 @@ cdef class Dictionary:
         self._pos_d = dict()
         self._trie_d = TrieDictionary()
         self._trie_rev_d = TrieDictionary()
+        self._perm_d = dict()
+        self._trigram_d = dict()
 
         self._docs_cnt = 0
         self._paragraphs_map = []
@@ -62,7 +66,7 @@ cdef class Dictionary:
         cdef long read_size
         cdef long words_cnt
         docs_list = os.listdir(to_index_path)[start:end]
-        total_size = sum([os.path.getsize(f'{to_index_path}/{f}') for f in docs_list]) // 1024
+        total_size = sum([os.path.getsize(f'{to_index_path}/{f}') for f in docs_list]) // 1024 + 1
         read_size = 0
         words_cnt = 0
 
@@ -80,13 +84,16 @@ cdef class Dictionary:
                 for line_num, line in enumerate(file):
                     if len(line) < 2:
                         continue
-                    for word_pos, word in enumerate(split_ex.split(line)):
+                    # for word_pos, word in enumerate(split_ex.split(line)):
+                    for word_pos, word in enumerate(line.split(' ')):
                         # word = strip_ex.sub('', word)
                         if len(word) > 0:
                             p_id = len(self._paragraphs_map)
-                            # self._add_word(word, p_id)
+                            self._add_word(word, p_id)
                             # self._add_pos_word(word, p_id, word_pos)
-                            self._add_trie_word(word, p_id)
+                            # self._add_trie_word(word, p_id)
+                            # self._add_perm_word(word, p_id)
+                            # self._add_trigram_word(word, p_id)
                             words_cnt += 1
                     self._paragraphs_map.append((filepath, line_num))
             read_size += os.path.getsize(filepath) // 1024
@@ -128,6 +135,32 @@ cdef class Dictionary:
         self._trie_d.add_word(w, ind)
         self._trie_rev_d.add_word(w[::-1], ind)
 
+    cdef _add_perm_word(self, str w, int ind):
+        cdef:
+            int i
+            set s
+        for i in range(len(w)+1):
+            perm = f'{w}${w}'[i:len(w)+i+1]
+            if perm not in self._perm_d:
+                s = self._perm_d[perm] = set()
+            else:
+                s = self._perm_d[perm]
+            s.add(ind)
+
+    cdef _add_trigram_word(self, str w, int ind):
+        cdef:
+            int i
+            set s
+        if len(w) < 3:
+            w = w+"$"*(3-len(w))
+        for i in range(len(w)-2):
+            tri = w[i:i+3]
+            if tri not in self._perm_d:
+                s = self._perm_d[tri] = set()
+            else:
+                s = self._perm_d[tri]
+            s.add(ind)
+
     cpdef set get_ids(self, str word):
         return self._d.get(word.capitalize(), set())
 
@@ -142,6 +175,14 @@ cdef class Dictionary:
             return self._trie_d.query(word)
         else:
             return {k[::-1]: v for k, v in self._trie_rev_d.query(word[::-1]).items()}
+
+    cpdef set get_perm_ids(self, str perm):
+        return self._perm_d.get(perm, set())
+
+    cpdef set get_trigram_ids(self, str trigram):
+        if len(trigram) < 3:
+            trigram = trigram+"$"*(3-len(trigram))
+        return self._trigram_d.get(trigram, set())
 
     cpdef docs_cnt(self):
         return self._docs_cnt

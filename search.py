@@ -149,12 +149,14 @@ class TrieJokerSearch(Search):
             start: str = query[:query.index('*')]
             end: str = query[query.rindex('*')+1:]
 
-            res_dict: dict = {}
             if start and end:
-                s_d = self._dictionary.get_trie_dict(start)
-                e_d = self._dictionary.get_trie_dict(end, revers=True)
-                print(f"Got {s_d}\n\n\n")
-                print(f"And {e_d}\n")
+                s_d: dict = self._dictionary.get_trie_dict(start)
+                e_d: dict = self._dictionary.get_trie_dict(end, revers=True)
+                common_keys = set(s_d.keys()).intersection(set(e_d.keys()))
+                # print(f"Starts keys: {set(s_d.keys())}")
+                # print(f"Ends keys: {set(e_d.keys())}")
+                # print(f"Common keys: {set(common_keys)}")
+                res_dict = {k: s_d[k].intersection(e_d[k]) for k in common_keys}
             else:
                 res_dict = self._dictionary.get_trie_dict(start if start else end, len(start) == 0)
 
