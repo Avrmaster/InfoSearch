@@ -11,6 +11,9 @@ cdef class Node:
     cpdef set ids(Node self):
         return self._ids
 
+    def __sizeof__(self):
+        return self.hashMap.__sizeof__() + self.ch.__sizeof__() + self._ids.__sizeof__()
+
 cdef class TrieDictionary:
     cdef Node root
     cdef bint revers
@@ -97,3 +100,6 @@ cdef class TrieDictionary:
         cdef Node n
         for n in node.hashMap.values():
             self.collect_words_part(n, word_dict, current_word)
+
+    def __sizeof__(self):
+        return self.root.__sizeof__()

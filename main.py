@@ -25,7 +25,7 @@ if __name__ == "__main__":
         #     break
 
         #
-        query = "har"
+        query = "har*"
         #
 
         paragraphs = bs.execute(query)
