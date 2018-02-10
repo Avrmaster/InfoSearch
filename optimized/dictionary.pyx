@@ -89,9 +89,9 @@ cdef class Dictionary:
                         # word = strip_ex.sub('', word)
                         if len(word) > 0:
                             p_id = len(self._paragraphs_map)
-                            self._add_word(word, p_id)
+                            # self._add_word(word, p_id)
                             # self._add_pos_word(word, p_id, word_pos)
-                            # self._add_trie_word(word, p_id)
+                            self._add_trie_word(word, p_id)
                             # self._add_perm_word(word, p_id)
                             # self._add_trigram_word(word, p_id)
                             words_cnt += 1
