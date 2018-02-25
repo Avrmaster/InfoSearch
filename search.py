@@ -1,6 +1,5 @@
 import re
 from typing import List, Set, Dict
-from itertools import chain
 from optimized.dictionary import Dictionary
 
 

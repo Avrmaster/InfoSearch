@@ -3312,7 +3312,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_4_add_dir(struct 
  *                         # word = strip_ex.sub('', word)
  *                         if len(word) > 0:             # <<<<<<<<<<<<<<
  *                             p_id = len(self._paragraphs_map)
- *                             self._add_word(word, p_id)
+ *                             # self._add_word(word, p_id)
  */
                 __pyx_t_22 = PyObject_Length(__pyx_v_word); if (unlikely(__pyx_t_22 == ((Py_ssize_t)-1))) __PYX_ERR(0, 90, __pyx_L14_error)
                 __pyx_t_3 = ((__pyx_t_22 > 0) != 0);
@@ -3322,7 +3322,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_4_add_dir(struct 
  *                         # word = strip_ex.sub('', word)
  *                         if len(word) > 0:
  *                             p_id = len(self._paragraphs_map)             # <<<<<<<<<<<<<<
- *                             self._add_word(word, p_id)
+ *                             # self._add_word(word, p_id)
  *                             # self._add_pos_word(word, p_id, word_pos)
  */
                   __pyx_t_12 = __pyx_v_self->_paragraphs_map;
@@ -3335,14 +3335,14 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_4_add_dir(struct 
                   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
                   __pyx_v_p_id = __pyx_t_22;
 
-                  /* "optimized/dictionary.pyx":92
- *                         if len(word) > 0:
- *                             p_id = len(self._paragraphs_map)
- *                             self._add_word(word, p_id)             # <<<<<<<<<<<<<<
+                  /* "optimized/dictionary.pyx":94
+ *                             # self._add_word(word, p_id)
  *                             # self._add_pos_word(word, p_id, word_pos)
- *                             # self._add_trie_word(word, p_id)
+ *                             self._add_trie_word(word, p_id)             # <<<<<<<<<<<<<<
+ *                             # self._add_perm_word(word, p_id)
+ *                             # self._add_trigram_word(word, p_id)
  */
-                  __pyx_t_12 = ((struct __pyx_vtabstruct_9optimized_10dictionary_Dictionary *)__pyx_v_self->__pyx_vtab)->_add_word(__pyx_v_self, __pyx_v_word, __pyx_v_p_id); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 92, __pyx_L14_error)
+                  __pyx_t_12 = ((struct __pyx_vtabstruct_9optimized_10dictionary_Dictionary *)__pyx_v_self->__pyx_vtab)->_add_trie_word(__pyx_v_self, __pyx_v_word, __pyx_v_p_id); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 94, __pyx_L14_error)
                   __Pyx_GOTREF(__pyx_t_12);
                   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
@@ -3360,7 +3360,7 @@ static PyObject *__pyx_pf_9optimized_10dictionary_10Dictionary_4_add_dir(struct 
  *                         # word = strip_ex.sub('', word)
  *                         if len(word) > 0:             # <<<<<<<<<<<<<<
  *                             p_id = len(self._paragraphs_map)
- *                             self._add_word(word, p_id)
+ *                             # self._add_word(word, p_id)
  */
                 }
 

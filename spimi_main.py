@@ -1,23 +1,20 @@
 import os; os.system("python optimized_build.py build_ext --inplace")
-from search import *
+from optimized.spimi.dictionary import Dictionary
+from search import BooleanSearch
 from datetime import datetime
 import sys
 
 
 if __name__ == "__main__":
-    dictionary = Dictionary()
+
     start_time = datetime.now()
-    dictionary.add_dir('documents/txtAll')
-    end_time = datetime.now()
-    print(f"    Indexed in {(end_time-start_time).total_seconds()} secs")
-    # print(dictionary, end='\n\n')
+    dictionary = Dictionary('C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txt')
+    index_time = datetime.now() - start_time
+    print(f"    Indexed in {index_time.total_seconds()} secs")
     print(f"Unique words count: {len(dictionary)}", end='\n\n')
     print(f"Dictionary system size: ~{sys.getsizeof(dictionary)//1024}kB\n")
 
     bs = BooleanSearch(dictionary)
-    # bs = PhraseSearch(dictionary)
-    # bs = PositionalSearch(dictionary)
-    # bs = TrieJokerSearch(dictionary)
     while True:
         query = input(f"Enter your query |{bs.__class__.__name__}| (empty to quit): ")
         if not query:
