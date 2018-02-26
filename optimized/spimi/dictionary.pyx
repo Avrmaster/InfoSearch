@@ -7,13 +7,15 @@ from multiprocessing.pool import Pool
 from multiprocessing import cpu_count
 from itertools import chain
 from glob import glob
+
 import shutil
-import json
 import sys
 import os
 import re
 
 _tempPath = "D:/tempSpimiBlocks"
+_indexTermsFilename = "spimiIndex_terms.txt"
+_indexPostsFilename = "spimiIndex_posts.txt"
 
 cpdef bytearray _compress_posting_list(list posting_list):
     cdef:
@@ -35,12 +37,12 @@ cpdef bytearray _compress_posting_list(list posting_list):
         buffer.clear()
     return bytearray(output)
 
-cpdef list _decompress_posting_list(bytearray compressed_list):
+cpdef list _decompress_posting_list(bytes compressed_list):
     cdef:
         int cur = 0
         int offset = 0
         list output = []
-    for b in list(compressed_list):
+    for b in compressed_list:
         cur = cur << 7 | (b & 0b01111111)
         if b >= 0b10000000:  # last bit is 1
             output.append(offset + cur)
@@ -66,7 +68,6 @@ cpdef str _write_block_to_file(dict block, int start_doc_id, int block_num):
             f.write('\n')
     return block_filepath
 
-# cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_block_size = 1073741824):
 cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_block_size = 1024 * 1024):
     """
     Generate dictionaries {TERM: POSTING LIST} of limited size
@@ -130,14 +131,15 @@ cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_bl
 
 cdef class Dictionary:
     cdef:
-        int _terms_cnt
-        int _docs_cnt
         tuple _documents_map
+        list _terms_posts
 
-    def __init__(self, str to_index_path, bint recursively = True):
+    def __init__(self, str to_index_path):
+
         files = (chain.from_iterable(glob(os.path.join(x[0], '*.txt')) for x in os.walk(to_index_path)))
         # filepath of documents with ID index indicates
         self._documents_map = tuple(filepath for i, filepath in enumerate(iter(files)))
+
         files_cnt = len(self._documents_map)
         pools_cnt = max(1, cpu_count() - 1)
         # pools_cnt = 1
@@ -152,13 +154,12 @@ cdef class Dictionary:
 
         print(f"\n\nSplitting {files_cnt} documents in |{to_index_path}| into {len(chunks)} chunk(s)")
         print(f"Processing in {pools_cnt} pools")
-        for f in os.listdir(_tempPath):
-            os.remove(os.path.join(_tempPath, f))
+        if os.path.exists(_tempPath):
+            for f in os.listdir(_tempPath):
+                os.remove(os.path.join(_tempPath, f))
         res = Pool(pools_cnt).starmap(_generate_block_dictionaries,
                                       [(self._documents_map[ch[0]:ch[1]], ch[0]) for ch in chunks])
-        print(f"\n{sum([len(r[0]) for r in res])} BLOCK(S) CREATED from {sum([r[1] for r in res])} WORD(S)")
-        self._docs_cnt = files_cnt
-        self._terms_cnt = 0
+        print(f"\n{sum([len(r[0]) for r in res])} BLOCK(S) CREATED from {sum([r[1] for r in res])} WORD(S). Merging..")
 
         blocks = []
         try:
@@ -168,9 +169,14 @@ cdef class Dictionary:
 
             last_term = ""
             last_posting_list = []
-            with open("index_terms.txt", "w") as ft:
+            with open(_indexTermsFilename, "wb+") as ft, \
+                    open(_indexPostsFilename, "wb+") as fp:
+
+                self._terms_posts = []
+                cur_term_pos = cur_post_pos = 0
+
                 while len(blocks) > 0:
-                    min_index, min_term = min(enumerate(cur_terms), key=operator.itemgetter(1)) # type: int, str
+                    min_index, min_term = min(enumerate(cur_terms), key=operator.itemgetter(1))  # type: int, str
                     if not min_term:
                         blocks[min_index].close()
                         blocks.pop(min_index)
@@ -180,62 +186,95 @@ cdef class Dictionary:
                         if min_term == last_term:
                             last_posting_list.extend(cur_posting_lists[min_index])
                         else:
-                            print(f"{last_term} || {last_posting_list}")
+                            ####
+                            if last_term:
+                                # print(f"{last_term} || {last_posting_list}")
+                                disk_term = bytearray(last_term, "utf-8")
+                                ft.write(disk_term)
 
+                                disk_post = _compress_posting_list(last_posting_list)
+                                fp.write(disk_post)
 
-
+                                self._terms_posts.append((cur_term_pos, cur_post_pos))
+                                cur_term_pos += len(disk_term)
+                                cur_post_pos += len(disk_post)
+                            ####
                             last_posting_list = cur_posting_lists[min_index]
                             last_term = min_term
-                            self._terms_cnt += 1
                         cur_terms[min_index] = blocks[min_index].readline().rstrip('\n')
                         if cur_terms[min_index]:
-                            cur_posting_lists[min_index] =\
+                            cur_posting_lists[min_index] = \
                                 list(map(int, blocks[min_index].readline().rstrip('\n').split(' ')))
-
-                    # ft.write()
         except IOError as e:
             print(f"Error while merging blocks: {e}")
 
-        # if os.path.exists(_tempPath):
-        #     shutil.rmtree(_tempPath)
+        if os.path.exists(_tempPath):
+            shutil.rmtree(_tempPath)
 
-    cpdef docs_cnt(self):
-        return self._docs_cnt
+    cpdef int docs_cnt(self):
+        return len(self._documents_map)
 
     def __len__(self):
-        return self._terms_cnt
+        return len(self._terms_posts)
 
     def get_document_filepath(self, int d_id):
-        if d_id < 0 or d_id >= len(self._documents_map):
-            raise IndexError(f"Dictionary does not contain document {d_id}")
         return self._documents_map[d_id]
 
-        # @cached(cache=LFUCache(maxsize=300))
-        # def get_paragraph(self, p_num):
-        #     if p_num < 0 or p_num >= len(self._paragraphs_map):
-        #         raise IndexError(f"Dictionary does not contain paragraph {p_num}")
-        #     fpath, lnum = self.get_paragraph_info(p_num)
-        #     with open(fpath) as f:
-        #         for j, l in enumerate(f):
-        #             print(f"\ropening{'.'*(j%3)+' '*(3-j%3)}{(j+1)*100//(lnum+1)}%", end='')
-        #             if j == lnum:
-        #                 print(end='\r')
-        #                 return l
-        #
-        # def __contains__(self, item):
-        #     return item in self._d
-        #
-        # def __iter__(self):
-        #     return iter(self._d.items())
-        # def __sizeof__(self):
-        #     return self._d.__sizeof__() + self._double_d.__sizeof__() + self._pos_d.__sizeof__()\
-        #                                 + self._trie_d.__sizeof__() + self._trie_rev_d.__sizeof__()
-        #
-        # def __str__(self):
-        #     printables = []
-        #     for i, item in enumerate(self._d.items()):
-        #         word, indexes = item
-        #         info = f'in {len(indexes)} pars.'
-        #         printables.append('<| ' + word + ' ' * (30 - len(word)) + info + ' |>' + ' ' * (30 - len(info)) +
-        #                           ('\n' if i % 3 == 2 else ''))
-        #     return ''.join(printables)
+    @cached(cache=LFUCache(maxsize=10))
+    def get_document(self, d_id):
+        with open(self.get_document_filepath(d_id), "r") as f:
+            return ''.join(f.readlines())
+
+    cpdef set get_ids(self, str word):
+        cdef:
+            int left = 0
+            int right = len(self._terms_posts) - 1
+            int middle
+            bytes term_bytes
+            bytes posts_bytes
+            str cur_term
+            tuple term_post
+            tuple next_term_post
+
+        with open(_indexTermsFilename, "rb") as ft, \
+                open(_indexPostsFilename, "rb") as fp:
+
+            while True:
+                if right < left:
+                    return set()
+
+                middle = (left + right) // 2
+
+                term_post = self._terms_posts[middle]
+                ft.seek(term_post[0], 0)
+                fp.seek(term_post[1], 0)
+
+                if middle + 1 < len(self._terms_posts):
+                    next_term_post = self._terms_posts[middle + 1]
+
+                    term_bytes = ft.read(next_term_post[0] - term_post[0])
+                    posts_bytes = fp.read(next_term_post[1] - term_post[1])
+                else:
+                    # read to the end
+                    term_bytes = ft.read(-1)
+                    posts_bytes = fp.read(-1)
+
+                cur_term = term_bytes.decode("utf-8")
+
+                if word < cur_term:
+                    right = middle - 1
+                elif word > cur_term:
+                    left = middle + 1
+                else:
+                    return set(_decompress_posting_list(posts_bytes))
+
+    def __contains__(self, str item):
+        return len(self.get_ids(item)) > 0
+
+    def __sizeof__(self):
+        return self._terms_posts.__sizeof__()
+
+    def total_size(self):
+        return self.__sizeof__() \
+               + os.path.getsize(_indexTermsFilename) \
+               + os.path.getsize(_indexPostsFilename)

@@ -25,6 +25,6 @@ if __name__ == "__main__":
         paragraphs = bs.execute(query)
         print(f"Found {len(paragraphs)} results")
         for i, p in enumerate(paragraphs):
-            print(f"Result {(i+1)} (in {dictionary.get_paragraph_info(p)[0]}): \n{dictionary.get_paragraph(p)}")
+            print(f"Result {(i+1)} (in {dictionary.get_paragraph_info(p)[0]}): \n{dictionary.get_document(p)}")
             if input() != "":
                 break
