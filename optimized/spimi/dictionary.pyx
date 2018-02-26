@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-from nltk.stem.porter import PorterStemmer
 from cachetools import LFUCache, cached
 from multiprocessing.pool import Pool
 from multiprocessing import cpu_count
@@ -26,7 +25,10 @@ cpdef bytearray _compress_posting_list(list posting_list):
         while dif > 0:
             buffer.append(dif & 0b01111111)
             dif >>= 7
-        buffer[0] |= 0b10000000
+        if len(buffer) > 0:
+            buffer[0] |= 0b10000000
+        else:
+            buffer.append(0b10000000)
         output.extend(reversed(buffer))
         buffer.clear()
     return bytearray(output)
@@ -49,15 +51,14 @@ cpdef str _write_block_to_file(dict block, int start_doc_id, int block_num):
     :param block: 
     :param start_doc_id: 
     :param block_num: 
-    :return: path
     """
     cdef:
         list post_term_list = []
         int cur_term_pos = 0
         int cur_post_pos = 0
-        str terms_filepath = os.path.join(_tempPath, "temp_t{}b{}.txt".format(start_doc_id, block_num))
-        str posts_filepath = os.path.join(_tempPath, "temp_p{}b{}.txt".format(start_doc_id, block_num))
-        str index_filepath = os.path.join(_tempPath, "temp_i{}b{}.txt".format(start_doc_id, block_num))
+        str terms_filepath = os.path.join(_tempPath, "temp{}b{}t.txt".format(start_doc_id, block_num))
+        str posts_filepath = os.path.join(_tempPath, "temp{}b{}p.txt".format(start_doc_id, block_num))
+        str index_filepath = os.path.join(_tempPath, "temp{}b{}i.txt".format(start_doc_id, block_num))
     if not os.path.exists(_tempPath):
         os.makedirs(_tempPath)
 
@@ -80,7 +81,7 @@ cpdef str _write_block_to_file(dict block, int start_doc_id, int block_num):
     return terms_filepath
 
 # cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_block_size = 1073741824):
-cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_block_size = 1024 * 512):
+cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_block_size = 1024 * 1024):
     """
     Generate dictionaries {TERM: POSTING LIST} of limited size
     and store them to temp directory. Files are to be merged and deleted later.
@@ -97,7 +98,6 @@ cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_bl
 
     split_ex = re.compile(r"[^\w'-]+", flags=re.IGNORECASE)
     strip_ex = re.compile(r"^['-]+|['-]+$", flags=re.IGNORECASE)
-    stemmer = PorterStemmer()
 
     cdef long total_size
     cdef long parsed_size
@@ -118,7 +118,7 @@ cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_bl
 
     for doc_num, filepath in enumerate(filepaths):
         with open(filepath) as file:
-            # print(f"Parsing {filepath}")
+            print(f"Parsing {filepath}")
             for line in file:
                 if len(line) < 2:
                     continue
@@ -126,7 +126,6 @@ cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_bl
                 for word in split_ex.split(line):
                     word = strip_ex.sub('', word.lower())
                     if len(word) > 0:
-                        # word = stemmer.stem(strip_ex.sub('', word))
                         try:
                             if cur_dict[word][-1] != start_doc_id + doc_num:
                                 cur_dict[word].append(start_doc_id + doc_num)
@@ -154,8 +153,8 @@ cdef class Dictionary:
         # filepath of documents with ID index indicates
         documents_map = tuple(filepath for i, filepath in enumerate(iter(files)))
         files_cnt = len(documents_map)
-        # pools_cnt = max(1, cpu_count() - 1)
-        pools_cnt = 1
+        pools_cnt = max(1, cpu_count() - 1)
+        # pools_cnt = 1
 
         chunk_size = max(1, files_cnt // (3 * pools_cnt))
         chunks = [(i * chunk_size, (i + 1) * chunk_size) for i in range(files_cnt // chunk_size)]
@@ -175,6 +174,8 @@ cdef class Dictionary:
         self._docs_cnt = files_cnt
         self._documents_map = documents_map
         # TODO merge blocks
+
+
 
         # if os.path.exists(_tempPath):
         #     shutil.rmtree(_tempPath)
