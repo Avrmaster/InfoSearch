@@ -176,7 +176,6 @@ cdef class Dictionary:
         self._documents_map = documents_map
         # TODO merge blocks
 
-
         # if os.path.exists(_tempPath):
         #     shutil.rmtree(_tempPath)
         self._terms_cnt = 0
