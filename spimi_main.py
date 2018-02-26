@@ -8,7 +8,7 @@ import sys
 if __name__ == "__main__":
 
     start_time = datetime.now()
-    dictionary = Dictionary('C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txt')
+    dictionary = Dictionary('C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txtAll')
     index_time = datetime.now() - start_time
     print(f"    Indexed in {index_time.total_seconds()} secs")
     print(f"Unique words count: {len(dictionary)}", end='\n\n')
