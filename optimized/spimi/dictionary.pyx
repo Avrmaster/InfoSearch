@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import operator
+
 from cachetools import LFUCache, cached
 from multiprocessing.pool import Pool
 from multiprocessing import cpu_count
@@ -40,8 +42,8 @@ cpdef list _decompress_posting_list(bytearray compressed_list):
         list output = []
     for b in list(compressed_list):
         cur = cur << 7 | (b & 0b01111111)
-        if b >= 0b10000000: # last bit is 1
-            output.append(offset+cur)
+        if b >= 0b10000000:  # last bit is 1
+            output.append(offset + cur)
             offset += cur
             cur = 0
     return output
@@ -53,32 +55,16 @@ cpdef str _write_block_to_file(dict block, int start_doc_id, int block_num):
     :param block_num: 
     """
     cdef:
-        list post_term_list = []
-        int cur_term_pos = 0
-        int cur_post_pos = 0
-        str terms_filepath = os.path.join(_tempPath, "temp{}b{}t.txt".format(start_doc_id, block_num))
-        str posts_filepath = os.path.join(_tempPath, "temp{}b{}p.txt".format(start_doc_id, block_num))
-        str index_filepath = os.path.join(_tempPath, "temp{}b{}i.txt".format(start_doc_id, block_num))
+        str block_filepath = os.path.join(_tempPath, "temp{}b{}.txt".format(start_doc_id, block_num))
     if not os.path.exists(_tempPath):
         os.makedirs(_tempPath)
 
-    with open(terms_filepath, "wb+") as ft, \
-            open(posts_filepath, "wb+") as fp, \
-            open(index_filepath, "w+") as fi:
+    with open(block_filepath, "w+") as f:
         for t in sorted(block.keys()):
-            disk_term = (bytearray(t, "utf-8"))
-            ft.write(bytes([len(disk_term)]))  # assuming that term's length will not exceed 255 symbols
-            ft.write(disk_term)
-
-            disk_post = _compress_posting_list(block[t])
-            fp.write(disk_post)
-
-            post_term_list.append((cur_term_pos, cur_post_pos))
-            cur_term_pos += 1 + len(disk_term)  # 1 for term size byte
-            cur_post_pos += len(disk_post)
-
-        json.dump(post_term_list, fp=fi)
-    return terms_filepath
+            f.write(f'{t}\n')
+            f.write(' '.join(map(str, block[t])))
+            f.write('\n')
+    return block_filepath
 
 # cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_block_size = 1073741824):
 cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_block_size = 1024 * 1024):
@@ -151,8 +137,8 @@ cdef class Dictionary:
     def __init__(self, str to_index_path, bint recursively = True):
         files = (chain.from_iterable(glob(os.path.join(x[0], '*.txt')) for x in os.walk(to_index_path)))
         # filepath of documents with ID index indicates
-        documents_map = tuple(filepath for i, filepath in enumerate(iter(files)))
-        files_cnt = len(documents_map)
+        self._documents_map = tuple(filepath for i, filepath in enumerate(iter(files)))
+        files_cnt = len(self._documents_map)
         pools_cnt = max(1, cpu_count() - 1)
         # pools_cnt = 1
 
@@ -169,17 +155,49 @@ cdef class Dictionary:
         for f in os.listdir(_tempPath):
             os.remove(os.path.join(_tempPath, f))
         res = Pool(pools_cnt).starmap(_generate_block_dictionaries,
-                                      [(documents_map[ch[0]:ch[1]], ch[0]) for ch in chunks])
+                                      [(self._documents_map[ch[0]:ch[1]], ch[0]) for ch in chunks])
         print(f"\n{sum([len(r[0]) for r in res])} BLOCK(S) CREATED from {sum([r[1] for r in res])} WORD(S)")
         self._docs_cnt = files_cnt
-        self._documents_map = documents_map
-        # TODO merge blocks
+        self._terms_cnt = 0
+
+        blocks = []
+        try:
+            blocks = [open(os.path.join(_tempPath, bl), "r") for bl in os.listdir(_tempPath)]
+            cur_terms = [b.readline().rstrip('\n') for b in blocks]
+            cur_posting_lists = [list(map(int, b.readline().rstrip('\n').split(' '))) for b in blocks]
+
+            last_term = ""
+            last_posting_list = []
+            with open("index_terms.txt", "w") as ft:
+                while len(blocks) > 0:
+                    min_index, min_term = min(enumerate(cur_terms), key=operator.itemgetter(1)) # type: int, str
+                    if not min_term:
+                        blocks[min_index].close()
+                        blocks.pop(min_index)
+                        cur_terms.pop(min_index)
+                        cur_posting_lists.pop(min_index)
+                    else:
+                        if min_term == last_term:
+                            last_posting_list.extend(cur_posting_lists[min_index])
+                        else:
+                            print(f"{last_term} || {last_posting_list}")
 
 
+
+                            last_posting_list = cur_posting_lists[min_index]
+                            last_term = min_term
+                            self._terms_cnt += 1
+                        cur_terms[min_index] = blocks[min_index].readline().rstrip('\n')
+                        if cur_terms[min_index]:
+                            cur_posting_lists[min_index] =\
+                                list(map(int, blocks[min_index].readline().rstrip('\n').split(' ')))
+
+                    # ft.write()
+        except IOError as e:
+            print(f"Error while merging blocks: {e}")
 
         # if os.path.exists(_tempPath):
         #     shutil.rmtree(_tempPath)
-        self._terms_cnt = 0
 
     cpdef docs_cnt(self):
         return self._docs_cnt
@@ -188,9 +206,9 @@ cdef class Dictionary:
         return self._terms_cnt
 
     def get_document_filepath(self, int d_id):
-        if d_id < 0 or d_id >= len(self.documents_map):
+        if d_id < 0 or d_id >= len(self._documents_map):
             raise IndexError(f"Dictionary does not contain document {d_id}")
-        return self.documents_map[d_id]
+        return self._documents_map[d_id]
 
         # @cached(cache=LFUCache(maxsize=300))
         # def get_paragraph(self, p_num):
