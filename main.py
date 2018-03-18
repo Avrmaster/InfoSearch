@@ -7,7 +7,7 @@ import sys
 
 
 if __name__ == "__main__":
-    documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txt'
+    documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txtAll'
     # documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/gutenPartSmall'
     # documents_path = 'D:/ToIndex/gutenberg'
 

@@ -1,7 +1,7 @@
-import re
-from utils.regex import clear_query
+from utils.regex import clear_query, get_query_terms
 from typing import List
 from optimized.spimi.dictionary import Dictionary
+from math import log
 
 
 class Search:
@@ -15,7 +15,18 @@ class BooleanSearch(Search):
         self._d = d
 
     def ranked_execute(self, query: str) -> set:
+        N = self._d.docs_cnt()
         suitable_documents = self.execute(query)
+        print(f"Suitable documents: {suitable_documents}")
+
+        for term in get_query_terms(query):
+            print(f"Analyzing {term}")
+            terms_documents = tuple(t for t in self._d.get_postring_tuples(term) if t[0] in suitable_documents)
+            print(f"Occurs is documents with frequencies: {terms_documents}")
+            idfs = tuple(log(N / td[1]) for td in terms_documents)
+            print(f"IDFs: {idfs}")
+            tf_idfs = tuple(td[1] * idf for td, idf in zip(terms_documents, idfs))
+            print(f"tf_idfs: {tf_idfs}")
 
         return suitable_documents
 
