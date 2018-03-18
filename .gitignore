@@ -1,7 +1,9 @@
 # Created by .ignore support plugin (hsz.mobi)
 .idea
-documents/txt/*
-documents/txtAll/*
+documents/gutenPart
+documents/gutenPartSmall
+documents/txt
+documents/txtAll
 spimiIndex_posts.txt
 spimiIndex_terms.txt
 *.pyd

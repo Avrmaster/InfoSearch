@@ -8,7 +8,8 @@ import sys
 
 if __name__ == "__main__":
     # documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txtAll'
-    documents_path = 'D:/ToIndex/gutenberg'
+    # documents_path = 'D:/ToIndex/gutenberg'
+    documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/gutenPart'
 
     print(f"Initializing indexing algorithm. Collection to index lays in directory {documents_path}."
           f" Total size to index: ")
