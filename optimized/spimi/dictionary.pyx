@@ -154,7 +154,7 @@ cdef class Dictionary:
         pools_cnt = max(1, cpu_count() - 1)
         # pools_cnt = 1
 
-        chunk_size = max(1, files_cnt // (3 * pools_cnt))
+        chunk_size = max(1, files_cnt // (10 * pools_cnt))
         chunks = [(i * chunk_size, (i + 1) * chunk_size) for i in range(files_cnt // chunk_size)]
         # append the last chunk which was not included with previous generator because of smaller size than the others
         if len(chunks) == 0:

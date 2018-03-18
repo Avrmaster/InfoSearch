@@ -9,14 +9,16 @@ if __name__ == "__main__":
     documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txtAll'
     # documents_path = 'D:/ToIndex/gutenberg'
 
+    index_collection_size = sum((os.path.getsize(f) for f in os.scandir(documents_path) if ".txt" in f.name))
+
     start_time = datetime.now()
     dictionary = Dictionary(documents_path)
     index_time = datetime.now() - start_time
     print(f"    Indexed in {index_time.total_seconds()} secs"
-          f" ({os.path.getsize(documents_path)/index_time.total_seconds()/1024/1024} mb/sec)")
+          f" ({index_collection_size/index_time.total_seconds()/1024/1024} mb/sec)")
     print(f"Unique words count: {len(dictionary)}", end='\n\n')
-    print(f"    Dictionary in-memory size: ~{sys.getsizeof(dictionary)//1024//1024}mB")
-    print(f"    Dictionary --total-- size: ~{dictionary.total_size()//1024//1024}mB\n")
+    print(f"    Dictionary in-memory size: ~{sys.getsizeof(dictionary)/1024/1024} mB")
+    print(f"    Dictionary --total-- size: ~{dictionary.total_size()/1024/1024} mB\n")
 
     bs = BooleanSearch(dictionary)
     while True:
