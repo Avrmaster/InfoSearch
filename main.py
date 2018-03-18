@@ -2,14 +2,18 @@ import os; os.system("python optimized_build.py build_ext --inplace")
 from optimized.spimi.dictionary import Dictionary
 from search import BooleanSearch
 from datetime import datetime
+from utils.files import get_total_txt_files_size_in_directory
 import sys
 
 
 if __name__ == "__main__":
-    documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txtAll'
-    # documents_path = 'D:/ToIndex/gutenberg'
+    # documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txtAll'
+    documents_path = 'D:/ToIndex/gutenberg'
 
-    index_collection_size = sum((os.path.getsize(f) for f in os.scandir(documents_path) if ".txt" in f.name))
+    print(f"Initializing indexing algorithm. Collection to index lays in directory {documents_path}."
+          f" Total size to index: ")
+    index_collection_size = get_total_txt_files_size_in_directory(documents_path)
+    print(f"{index_collection_size//1024/1024} mb.")
 
     start_time = datetime.now()
     dictionary = Dictionary(documents_path)

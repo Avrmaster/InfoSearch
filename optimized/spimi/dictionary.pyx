@@ -5,10 +5,9 @@ import operator
 from cachetools import LFUCache, cached
 from multiprocessing.pool import Pool
 from multiprocessing import cpu_count
-from itertools import chain
-from glob import glob
 
 from utils.regex import super_strip
+from utils.files import get_all_txt_files
 import win32file
 import shutil
 import sys
@@ -146,9 +145,9 @@ cdef class Dictionary:
         print(f"Max opened files count set to {win32file._getmaxstdio()}")
 
         print(f"Searching for *.txt files in directory tree..")
-        files = (chain.from_iterable(glob(os.path.join(x[0], '*.txt')) for x in os.walk(to_index_path)))
+        files = get_all_txt_files(to_index_path)
         # filepath of documents with ID index indicates
-        self._documents_map = tuple(filepath for i, filepath in enumerate(iter(files)))
+        self._documents_map = tuple(filepath for i, filepath in enumerate(files))
 
         files_cnt = len(self._documents_map)
         pools_cnt = max(1, cpu_count() - 1)
