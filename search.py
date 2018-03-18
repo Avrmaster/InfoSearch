@@ -1,6 +1,10 @@
+import operator
+
 from utils.regex import clear_query, get_query_terms
-from typing import List
 from optimized.spimi.dictionary import Dictionary
+from utils.scoring import extract_metadata
+from itertools import chain
+from typing import List
 from math import log
 
 
@@ -14,21 +18,54 @@ class BooleanSearch(Search):
         self._all = set(i for i in range(d.docs_cnt()))
         self._d = d
 
-    def ranked_execute(self, query: str) -> set:
+    def ranked_execute(self, query: str) -> tuple:
         N = self._d.docs_cnt()
         suitable_documents = self.execute(query)
-        print(f"Suitable documents: {suitable_documents}")
+        # metadata = tuple(chain.from_iterable(tuple((mtd.title, mtd.author) for mtd in
+        #                                            (extract_metadata(self._d.get_document_filepath(d_id),
+        #                                                              self._d.get_encoding())
+        #                                             for d_id in suitable_documents))))
+        metadata = tuple(
+            (t[0], t[1].title, t[1].author) for t in (((d_id, extract_metadata(
+                self._d.get_document_filepath(d_id),
+                self._d.get_encoding())) for d_id in suitable_documents)))
 
+        print(f"Suitable documents: {suitable_documents}")
+        print(f"Their metadata: {metadata}")
+
+        scores = {d: 0 for d in suitable_documents}
         for term in get_query_terms(query):
             print(f"Analyzing {term}")
-            terms_documents = tuple(t for t in self._d.get_postring_tuples(term) if t[0] in suitable_documents)
-            print(f"Occurs is documents with frequencies: {terms_documents}")
-            idfs = tuple(log(N / td[1]) for td in terms_documents)
-            print(f"IDFs: {idfs}")
-            tf_idfs = tuple(td[1] * idf for td, idf in zip(terms_documents, idfs))
+            term_documents = tuple(t for t in self._d.get_postring_tuples(term) if t[0] in suitable_documents)
+            print(f"Occurs is documents' with frequencies: {term_documents}")
+            try:
+                idf = log(N / len(self._d.get_postring_tuples(term)))
+            except ZeroDivisionError:
+                # word is not present in any of the documents.
+                # It could happen since query engine supports negotion operator
+                continue
+            print(f"IDF: {idf}")
+            tf_idfs = tuple((term_doc[0], term_doc[1] * idf) for term_doc in term_documents)
             print(f"tf_idfs: {tf_idfs}")
+            for doc_id, tf_score in tf_idfs:
+                scores[doc_id] += tf_score
 
-        return suitable_documents
+            term_metadatas = tuple(t for t in metadata if term in list(chain(t[1])))
+            print(f"Occurs in metadatas' {term_metadatas}")
+            try:
+                metadata_idf = log(len(metadata) / len(term_metadatas))
+                metadata_tf_idfs = tuple((t[0], metadata_idf) for t in term_metadatas)
+                print(f"Metadata idf: {metadata_idf}")
+                print(f"Metadata tf-idf: {metadata_tf_idfs}")
+                for doc_id, met_score in metadata_tf_idfs:
+                    scores[doc_id] += met_score
+            except ZeroDivisionError:
+                # term is not in metadata. That's okay too
+                continue
+        print(f"Scores: {scores}")
+        sorted_docs = tuple(d[0] for d in sorted(scores.items(), key=operator.itemgetter(1), reverse=True))
+        print(f"Sorted doc_ids: {sorted_docs}")
+        return sorted_docs
 
     def execute(self, query: str) -> set:
         """

@@ -255,6 +255,9 @@ cdef class Dictionary:
         with open(self.get_document_filepath(d_id), "r", encoding=_ENCODING) as f:
             return ''.join(f.readlines())
 
+    cpdef str get_encoding(self):
+        return _ENCODING
+
     cpdef tuple get_postring_tuples(self, str word):
         cdef:
             int left = 0
@@ -271,7 +274,7 @@ cdef class Dictionary:
                 open(_indexPostsFilename, "rb") as fp:
             while True:
                 if right < left:
-                    return set()
+                    return tuple()
 
                 middle = (left + right) // 2
 

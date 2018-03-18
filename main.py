@@ -7,8 +7,9 @@ import sys
 
 
 if __name__ == "__main__":
-    documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txtAll'
-    # documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/gutenPartSmall'
+    # documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txtAll'
+    # documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txt'
+    documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/gutenPartSmall'
     # documents_path = 'D:/ToIndex/gutenberg'
 
     print(f"Initializing indexing algorithm. Collection to index lays in directory {documents_path}."
@@ -31,9 +32,10 @@ if __name__ == "__main__":
         if query == "\quit":
             break
 
-        documents = bs.ranked_execute(query)
-        print(f"Found {len(documents)} results")
-        for i, p in enumerate(documents):
+        documents_ids = bs.ranked_execute(query)
+        print(f"Found {len(documents_ids)} results:")
+        print('\n'.join(tuple(dictionary.get_document_filepath(doc_id) for doc_id in documents_ids)))
+        for i, p in enumerate(documents_ids):
             if input() != "":
                 break
             print(f"Result {(i+1)} (in {dictionary.get_document_filepath(p)}): \n{dictionary.get_document(p)}")
