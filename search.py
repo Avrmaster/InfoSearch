@@ -1,6 +1,7 @@
 import re
-from typing import List, Set, Dict
-from optimized.dictionary import Dictionary
+from utils.regex import clear_query
+from typing import List
+from optimized.spimi.dictionary import Dictionary
 
 
 class Search:
@@ -12,7 +13,6 @@ class BooleanSearch(Search):
     def __init__(self, d: Dictionary):
         self._all = set(i for i in range(d.docs_cnt()))
         self._d = d
-        self._sub_ex = re.compile('[\w~]( +)[\w~]')
 
     def execute(self, query: str) -> set:
         """
@@ -25,43 +25,44 @@ class BooleanSearch(Search):
         A space between words is treated as AND
         :return: set of paragraphs' ids
         """
+        try:
+            query = clear_query(query)
+            query = f'(|{query})'
 
-        for m in self._sub_ex.finditer(query):
-            query = query[:m.span(1)[0]]+'&'+query[m.span(1)[1]:]
+            print(f"executing {query}")
 
-        query = f'(|{query})'
+            operators = []
+            operands: List[set] = [set()]
+            w = ''
+            inverse_last = False
+            for e in query:
+                if e == ' ':
+                    continue
+                if e == '~':
+                    inverse_last = not inverse_last
+                if e in ('&', '|', '(', ')') and len(w) > 0:
+                    operands.append(self._d.get_ids(w))
+                    if inverse_last:
+                        operands.append(self._all.difference(operands.pop()))
+                        inverse_last = False
+                    w = ''
+                if e in ('&', '|', '(', '~'):
+                    operators.append(e)
+                elif e == ')':
+                    for o in reversed(operators):
+                        if o == '(':
+                            break
+                        if o == '&':
+                            operands.append(operands.pop().intersection(operands.pop()))
+                        elif o == '|':
+                            operands.append(operands.pop().union(operands.pop()))
+                else:
+                    w += e
 
-        # print(f"executing {query}")
-
-        operators = []
-        operands: List[set] = [set()]
-        w = ''
-        inverse_last = False
-        for e in query:
-            if e == ' ':
-                continue
-            if e == '~':
-                inverse_last = not inverse_last
-            if e in ('&', '|', '(', ')') and len(w) > 0:
-                operands.append(self._d.get_ids(w))
-                if inverse_last:
-                    operands.append(self._all.difference(operands.pop()))
-                    inverse_last = False
-                w = ''
-            if e in ('&', '|', '(', '~'):
-                operators.append(e)
-            elif e == ')':
-                for o in reversed(operators):
-                    if o == '(':
-                        break
-                    if o == '&':
-                        operands.append(operands.pop().intersection(operands.pop()))
-                    elif o == '|':
-                        operands.append(operands.pop().union(operands.pop()))
-            else:
-                w += e
-
-        return operands.pop()
+            return operands.pop()
+        except Exception as e:
+            print(f"Exception was caught during query execution: {e}")
+            return set()
 
 
 class PhraseSearch(Search):

@@ -6,3 +6,7 @@ spimiIndex_posts.txt
 spimiIndex_terms.txt
 *.pyd
 *.c
+__pycache__/optimized_build.cpython-36.pyc
+build/
+optimized/__pycache__/
+optimized/spimi/__pycache__/
