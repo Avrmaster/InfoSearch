@@ -10,8 +10,10 @@ from utils.regex import super_strip
 from utils.files import get_all_txt_files
 import win32file
 import shutil
+import json
 import sys
 import os
+
 
 _ENCODING = "iso-8859-1"
 _tempPath = "D:/tempSpimiBlocks"
@@ -30,38 +32,49 @@ cpdef tuple get_largest_file_and_its_lines_count():
             lines_count += 1
     return longest_file_path, lines_count
 
+
+cdef _write_number_variable_length(long n, list output, list buffer):
+    while n > 0:
+        buffer.append(n & 0b01111111)
+        n >>= 7
+    if len(buffer) > 0:
+        buffer[0] |= 0b10000000
+    else:
+        buffer.append(0b10000000)
+    output.extend(reversed(buffer))
+    buffer.clear()
+
 cpdef bytearray _compress_posting_list(list posting_list):
     cdef:
         int last = 0
         int dif = 0
         list output = []
         list buffer = []
-    for i in posting_list:
-        dif = i - last
-        last = i
-        while dif > 0:
-            buffer.append(dif & 0b01111111)
-            dif >>= 7
-        if len(buffer) > 0:
-            buffer[0] |= 0b10000000
-        else:
-            buffer.append(0b10000000)
-        output.extend(reversed(buffer))
-        buffer.clear()
+
+    for doc_i, freq_in_i in posting_list:
+        dif = doc_i - last
+        last = doc_i
+        _write_number_variable_length(dif, output, buffer)
+        _write_number_variable_length(freq_in_i, output, buffer)
     return bytearray(output)
 
-cpdef list _decompress_posting_list(bytes compressed_list):
+cpdef tuple _decompress_posting_list(bytes compressed_list):
     cdef:
         int cur = 0
         int offset = 0
         list output = []
+        bint freq_number = False
     for b in compressed_list:
         cur = cur << 7 | (b & 0b01111111)
         if b >= 0b10000000:  # last bit is 1
-            output.append(offset + cur)
-            offset += cur
+            if not freq_number:
+                output.append(offset + cur)
+                offset += cur
+            else:
+                output.append(cur)
+            freq_number = not freq_number
             cur = 0
-    return output
+    return tuple(zip(output[::2], output[1::2])) # make document-freq pairs
 
 cpdef str _write_block_to_file(dict block, int start_doc_id, int block_num):
     cdef:
@@ -72,7 +85,7 @@ cpdef str _write_block_to_file(dict block, int start_doc_id, int block_num):
     with open(block_filepath, "w+", encoding=_ENCODING) as f:
         for i, t in enumerate(sorted(block.keys())):
             f.write(f'{t}\n')
-            f.write(' '.join(map(str, block[t])))
+            f.write(json.dumps(block[t]))
             f.write('\n')
     return block_filepath
 
@@ -90,11 +103,7 @@ cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_bl
     :return: tuple of dictionaries' paths and total read words count
     :rtype: Tuple[List[str], int]
     """
-    cdef long total_size
-    cdef long parsed_size
     cdef long words_cnt
-    total_size = max(sum([os.path.getsize(f) for f in filepaths]) // 1024, 1)
-    parsed_size = 0
     words_cnt = 0
 
     cdef long doc_num
@@ -115,18 +124,23 @@ cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_bl
                     if len(line) == 0:
                         continue
                     for word in line.split(" "):
-                        word = super_strip(word.lower())
+                        word = super_strip(word)
                         if len(word) > 0:
                             try:
-                                if cur_dict[word][-1] != start_doc_id + doc_num:
-                                    cur_dict[word].append(start_doc_id + doc_num)
+                                cur_postings = cur_dict[word]
+                                if cur_postings[-1][0] != start_doc_id + doc_num:
+                                    # register a word in this document for the first time
+                                    cur_postings.append([start_doc_id + doc_num, 1])
+                                else:
+                                    # add 1 more occurence in this document
+                                    cur_postings[-1][1] += 1
                             except KeyError:
-                                cur_dict[word] = [start_doc_id + doc_num]
+                                # register new word and new occurence in the document at the same time
+                                cur_dict[word] = [[start_doc_id + doc_num, 1]]
                             words_cnt += 1
                         if sys.getsizeof(cur_dict) > max_block_size:
                             dict_paths.append(_write_block_to_file(cur_dict, start_doc_id, len(dict_paths)))
                             cur_dict.clear()
-            parsed_size += os.path.getsize(filepath) // 1024
         except UnicodeDecodeError as e:
             print(f"{e} at file {filepath}")
 
@@ -178,7 +192,7 @@ cdef class Dictionary:
             blocks = [open(os.path.join(_tempPath, bl), "r", encoding=_ENCODING) for bl in os.listdir(_tempPath)]
 
             cur_terms = [b.readline().rstrip('\n') for b in blocks]
-            cur_posting_lists = [list(map(int, b.readline().rstrip('\n').split(' '))) for b in blocks]
+            cur_posting_lists = [json.loads(b.readline().rstrip('\n')) for b in blocks]
 
             largest_file_path, largest_lines_count = get_largest_file_and_its_lines_count()
             cur_line_at_largest_block = 0
@@ -204,7 +218,6 @@ cdef class Dictionary:
                         else:
                             ####
                             if last_term:
-                                # print(f"{last_term} || {last_posting_list}")
                                 last_posting_list = sorted(last_posting_list)
                                 disk_term = bytearray(last_term, _ENCODING)
                                 ft.write(disk_term)
@@ -224,8 +237,7 @@ cdef class Dictionary:
                             print(f"\rMERGING PROGRESS:"
                                   f"{(cur_line_at_largest_block*200)//largest_lines_count}%", end='')
                         if cur_terms[min_index]:
-                            cur_posting_lists[min_index] = \
-                                list(map(int, blocks[min_index].readline().rstrip('\n').split(' ')))
+                            cur_posting_lists[min_index] = json.loads(blocks[min_index].readline().rstrip('\n'))
         except IOError as e:
             print(f"Error while merging blocks: {e}")
 
@@ -243,7 +255,7 @@ cdef class Dictionary:
         with open(self.get_document_filepath(d_id), "r", encoding=_ENCODING) as f:
             return ''.join(f.readlines())
 
-    cpdef set get_ids(self, str word):
+    cpdef tuple get_postring_tuples(self, str word):
         cdef:
             int left = 0
             int right = len(self._terms_posts) - 1
@@ -254,7 +266,7 @@ cdef class Dictionary:
             tuple term_post
             tuple next_term_post
 
-        word = word.lower()
+        word = super_strip(word)
         with open(_indexTermsFilename, "rb") as ft, \
                 open(_indexPostsFilename, "rb") as fp:
             while True:
@@ -284,10 +296,10 @@ cdef class Dictionary:
                 elif word > cur_term:
                     left = middle + 1
                 else:
-                    return set(_decompress_posting_list(posts_bytes))
+                    return _decompress_posting_list(posts_bytes)
 
     def __contains__(self, str item):
-        return len(self.get_ids(item)) > 0
+        return len(self.get_postring_tuples(item)) > 0
 
     def __sizeof__(self):
         return self._terms_posts.__sizeof__()

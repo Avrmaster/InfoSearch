@@ -7,9 +7,9 @@ import sys
 
 
 if __name__ == "__main__":
-    # documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txtAll'
+    documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/txt'
+    # documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/gutenPartSmall'
     # documents_path = 'D:/ToIndex/gutenberg'
-    documents_path = 'C:/Users/Sasha/PycharmProjects/InfoSearch/documents/gutenPart'
 
     print(f"Initializing indexing algorithm. Collection to index lays in directory {documents_path}."
           f" Total size to index: ")
@@ -31,7 +31,7 @@ if __name__ == "__main__":
         if query == "\quit":
             break
 
-        documents = bs.execute(query)
+        documents = bs.ranked_execute(query)
         print(f"Found {len(documents)} results")
         for i, p in enumerate(documents):
             if input() != "":
