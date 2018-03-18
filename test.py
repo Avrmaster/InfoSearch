@@ -1,7 +1,7 @@
-import re
-from utils.scoring import extract_metadata
+metadata = ((9, 'sjkhsakhkd Children in Prison and Other Cruelties of Prison Life', 'Oscar Wilde'),
+            (10, 'Children in Prison and Other Cruelties of Prison Life', 'Oscar Wilde'),
+            (19, 'The Dull Miss Archinard', 'Anne Douglas Sedgwick'),
+            (14, 'Raskaan syytï¿½ksen alla; Kun on olevinaan liian ovela', 'Ludwig Anzengruber'))
 
-if __name__ == "__main__":
-    
-    print(extract_metadata("C:/Users/Sasha/PycharmProjects/InfoSearch/documents/gutenPart/1/0/42100/42100.txt",
-                           "latin1"))
+for m in metadata:
+    print(m)

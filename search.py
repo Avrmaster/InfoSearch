@@ -26,7 +26,7 @@ class BooleanSearch(Search):
         #                                                              self._d.get_encoding())
         #                                             for d_id in suitable_documents))))
         metadata = tuple(
-            (t[0], t[1].title, t[1].author) for t in (((d_id, extract_metadata(
+            (t[0], (t[1].title, t[1].author)) for t in (((d_id, extract_metadata(
                 self._d.get_document_filepath(d_id),
                 self._d.get_encoding())) for d_id in suitable_documents)))
 
@@ -50,10 +50,10 @@ class BooleanSearch(Search):
             for doc_id, tf_score in tf_idfs:
                 scores[doc_id] += tf_score
 
-            term_metadatas = tuple(t for t in metadata if term in list(chain(t[1])))
-            print(f"Occurs in metadatas' {term_metadatas}")
+            term_metadatas = tuple(t for t in metadata if any(term in m for m in t[1]))
+            print(f"Occurs in metadatas {term_metadatas}")
             try:
-                metadata_idf = log(len(metadata) / len(term_metadatas))
+                metadata_idf = log(N / len(term_metadatas))
                 metadata_tf_idfs = tuple((t[0], metadata_idf) for t in term_metadatas)
                 print(f"Metadata idf: {metadata_idf}")
                 print(f"Metadata tf-idf: {metadata_tf_idfs}")
