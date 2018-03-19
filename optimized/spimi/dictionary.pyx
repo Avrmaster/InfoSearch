@@ -151,10 +151,13 @@ cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_bl
 
 cdef class Dictionary:
     cdef:
+        dict _terms_vectors
         tuple _documents_map
         list _terms_posts
 
     def __init__(self, str to_index_path):
+        self._terms_vectors = {}
+
         win32file._setmaxstdio(1024 * 5)
         print(f"Max opened files count set to {win32file._getmaxstdio()}")
 
@@ -222,6 +225,8 @@ cdef class Dictionary:
                                 disk_term = bytearray(last_term, _ENCODING)
                                 ft.write(disk_term)
 
+                                self._terms_vectors[last_term] = last_posting_list
+
                                 disk_post = _compress_posting_list(last_posting_list)
                                 fp.write(disk_post)
 
@@ -243,6 +248,9 @@ cdef class Dictionary:
 
     cpdef int docs_cnt(self):
         return len(self._documents_map)
+
+    cpdef dict get_terms_vectos(self):
+        return self._terms_vectors
 
     def __len__(self):
         return len(self._terms_posts)

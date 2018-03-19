@@ -4,6 +4,7 @@ from utils.regex import clear_query, get_query_terms
 from optimized.spimi.dictionary import Dictionary
 from utils.scoring import extract_metadata
 from itertools import chain
+from random import choices
 from typing import List
 from math import log
 
@@ -13,10 +14,67 @@ class Search:
         raise NotImplementedError
 
 
+def scalar_product(v1, v2):
+    return sum(a * b for a, b in zip(v1, v2))
+
+
 class BooleanSearch(Search):
+    def calc_tf_idf(self, term, doc_id):
+        try:
+            idf = log(self._d.docs_cnt() / len(self._d.get_postring_tuples(term)))
+            posting_tuples = self._d.get_postring_tuples(term)
+            for d_id, freq in posting_tuples:
+                if d_id == doc_id:
+                    return idf * freq
+        except ZeroDivisionError:
+            pass
+        return 0
+
     def __init__(self, d: Dictionary):
         self._all = set(i for i in range(d.docs_cnt()))
         self._d = d
+
+        N = self._d.docs_cnt()
+        doc_vectors = []
+        for doc_id in range(N):
+            print(f"\rVectors calculation {doc_id+1}/{N}", end="")
+            doc_vector = []
+            for term in self._d.get_terms_vectos():
+                doc_vector.append(self.calc_tf_idf(term, doc_id))
+            doc_vectors.append(doc_vector)
+        leaders_ids = set(choices(tuple(range(N)), k=round(N ** 0.5)))
+        followers = tuple([i, -1] for i in range(self._d.docs_cnt()) if i not in leaders_ids)
+
+        for follower in followers:
+            follower_id = follower[0]
+            print(f"\rFollowers calculation {follower_id+1}/{len(followers)}", end="")
+            min_val = 20000000000
+            min_id = -1
+            for leader_id in leaders_ids:
+                cur_val = scalar_product(doc_vectors[follower_id], doc_vectors[leader_id])
+                if cur_val < min_val:
+                    min_val = cur_val
+                    min_id = leader_id
+            follower[1] = min_id
+
+        self.vectors = doc_vectors
+        self.leaders = leaders_ids
+        self.followers = followers
+
+    def clastered_execute(self, query: str) -> tuple:
+        terms_in_query = get_query_terms(query)
+        query_vector = ((1 if t in terms_in_query else 0) for t in self._d.get_terms_vectos())
+
+        min_leader_id = -1
+        min_val = 2000000000000
+        for leader_id in self.leaders:
+            cur_dist = scalar_product(query_vector, self.vectors[leader_id])
+            if cur_dist < min_val:
+                min_leader_id = leader_id
+                min_val = cur_dist
+        res = [f[0] for f in self.followers if f[1] == min_leader_id]
+        res.append(min_leader_id)
+        return tuple(res)
 
     def ranked_execute(self, query: str) -> tuple:
         N = self._d.docs_cnt()
