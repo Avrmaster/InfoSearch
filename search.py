@@ -2,7 +2,7 @@ import operator
 
 from utils.regex import clear_query, get_query_terms
 from optimized.spimi.dictionary import Dictionary
-from utils.scoring import extract_metadata
+from utils.scoring import extract_metadata, process_fb2
 from itertools import chain
 from typing import List
 from math import log
@@ -25,10 +25,16 @@ class BooleanSearch(Search):
         #                                            (extract_metadata(self._d.get_document_filepath(d_id),
         #                                                              self._d.get_encoding())
         #                                             for d_id in suitable_documents))))
+
+        # TEXT files
+        # metadata = tuple(
+        #     (t[0], t[1].title, t[1].author) for t in (((d_id, extract_metadata(
+        #         self._d.get_document_filepath(d_id),
+        #         self._d.get_encoding())) for d_id in suitable_documents)))
+
         metadata = tuple(
-            (t[0], t[1].title, t[1].author) for t in (((d_id, extract_metadata(
-                self._d.get_document_filepath(d_id),
-                self._d.get_encoding())) for d_id in suitable_documents)))
+            (t[0], t[1].title, t[1].author) for t in
+            ((d_id, process_fb2(self._d.get_document_filepath(d_id))[1]) for d_id in suitable_documents))
 
         print(f"Suitable documents: {suitable_documents}")
         print(f"Their metadata: {metadata}")

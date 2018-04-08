@@ -6,9 +6,12 @@ import os
 
 
 href_re = re.compile("""href=["'](.+?)["']""", flags=re.IGNORECASE)
-start_addr = 'http://textfiles.com/etext'
+start_addr = 'https://booksfb2.com/'
 queue = [start_addr]
-output_dir = 'txt'
+output_dir = 'fb2'
+links_endings = ['.fb2']
+save_extension = '.fb2'
+
 http = urllib3.PoolManager(
     cert_reqs='CERT_REQUIRED',
     ca_certs=certifi.where())
@@ -32,8 +35,8 @@ def _save(content, filename: str, plain_text: bool = False):
 
 def _link_to_filename(link: str):
     name = (link[link.rindex('/')+1:]).replace('%20', ' ')
-    if not name.endswith('.txt'):
-        name += '.txt'
+    if not name.endswith(save_extension):
+        name += save_extension
     return name
 
 
@@ -52,23 +55,25 @@ while len(queue) > 0:
         print("Couldn't download")
         continue
 
-    if '<html' not in (page_text[:15]).lower():
-        _save(page_text, _link_to_filename(cur_address), plain_text=True)
-    else:
-        for ref in href_re.finditer(page_text):
-            new_addr = ref[1]
-            if 'http' not in new_addr:
-                new_addr = f'{cur_address}/{new_addr}'
-            elif start_addr not in new_addr:
-                print(f"\rSkipping foreign page {new_addr}", end='')
-                continue
-            if new_addr.endswith('.txt') or new_addr.endswith('text'):
-                filename: str = _link_to_filename(new_addr)
-                if filename not in os.listdir(output_dir):
-                    downloaded_bytes = http.request('GET', new_addr).data
-                    _save(downloaded_bytes, filename)
-                else:
-                    print(f"\rSkipping downloading {filename} because it already exist", end='')
+    # if '<html' not in (page_text[:15]).lower():
+    #     _save(page_text, _link_to_filename(cur_address), plain_text=True)
+    # else:
+    for ref in href_re.finditer(page_text):
+        new_addr = ref[1]
+        if 'http' not in new_addr:
+            new_addr = f'{cur_address}/{new_addr}'
+        elif start_addr not in new_addr:
+            print(f"\rSkipping foreign page {new_addr}", end='')
+            continue
+        if 'cat' in new_addr:
+            continue
+        if any([new_addr.endswith(ending) for ending in links_endings]):
+            filename: str = _link_to_filename(new_addr)
+            if filename not in os.listdir(output_dir):
+                downloaded_bytes = http.request('GET', new_addr).data
+                _save(downloaded_bytes, filename)
             else:
-                queue.append(new_addr)
+                print(f"\rSkipping downloading {filename} because it already exist", end='')
+        else:
+            queue.append(new_addr)
 print("\nDone. Downloaded: \n{}\nTotal: {}".format('\n'.join(downloaded), len(downloaded)))

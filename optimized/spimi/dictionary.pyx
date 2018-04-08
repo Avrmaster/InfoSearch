@@ -7,15 +7,17 @@ from multiprocessing.pool import Pool
 from multiprocessing import cpu_count
 
 from utils.regex import super_strip
-from utils.files import get_all_txt_files
+from utils.files import get_all_files
 import win32file
 import shutil
 import json
 import sys
 import os
 
+from utils.scoring import process_fb2
 
-_ENCODING = "iso-8859-1"
+# _ENCODING = "iso-8859-1"
+_ENCODING = "utf-8"
 _tempPath = "D:/tempSpimiBlocks"
 _indexTermsFilename = "spimiIndex_terms.txt"
 _indexPostsFilename = "spimiIndex_posts.txt"
@@ -118,29 +120,53 @@ cpdef _generate_block_dictionaries(tuple filepaths, int start_doc_id, int max_bl
 
     for doc_num, filepath in enumerate(filepaths):
         try:
-            with open(filepath, encoding=_ENCODING) as file:
-                print(f"Parsing {filepath}")
-                for line in file:
-                    if len(line) == 0:
-                        continue
-                    for word in line.split(" "):
-                        word = super_strip(word)
-                        if len(word) > 0:
-                            try:
-                                cur_postings = cur_dict[word]
-                                if cur_postings[-1][0] != start_doc_id + doc_num:
-                                    # register a word in this document for the first time
-                                    cur_postings.append([start_doc_id + doc_num, 1])
-                                else:
-                                    # add 1 more occurence in this document
-                                    cur_postings[-1][1] += 1
-                            except KeyError:
-                                # register new word and new occurence in the document at the same time
-                                cur_dict[word] = [[start_doc_id + doc_num, 1]]
-                            words_cnt += 1
-                        if sys.getsizeof(cur_dict) > max_block_size:
-                            dict_paths.append(_write_block_to_file(cur_dict, start_doc_id, len(dict_paths)))
-                            cur_dict.clear()
+        #     TEXT FILES
+        #     with open(filepath, encoding=_ENCODING) as file:
+        #         print(f"Parsing {filepath}")
+        #         for line in file:
+        #             if len(line) == 0:
+        #                 continue
+        #             for word in line.split(" "):
+        #                 word = super_strip(word)
+        #                 if len(word) > 0:
+        #                     try:
+        #                         cur_postings = cur_dict[word]
+        #                         if cur_postings[-1][0] != start_doc_id + doc_num:
+        #                             # register a word in this document for the first time
+        #                             cur_postings.append([start_doc_id + doc_num, 1])
+        #                         else:
+        #                             # add 1 more occurence in this document
+        #                             cur_postings[-1][1] += 1
+        #                     except KeyError:
+        #                         # register new word and new occurence in the document at the same time
+        #                         cur_dict[word] = [[start_doc_id + doc_num, 1]]
+        #                     words_cnt += 1
+        #                 if sys.getsizeof(cur_dict) > max_block_size:
+        #                     dict_paths.append(_write_block_to_file(cur_dict, start_doc_id, len(dict_paths)))
+        #                     cur_dict.clear()
+            print(f"Parsing {filepath}")
+            tags_texts, metadata = process_fb2(filepath)
+            for line in tags_texts:
+                if len(line) == 0:
+                    continue
+                for word in line.split(" "):
+                    word = super_strip(word)
+                    if len(word) > 0:
+                        try:
+                            cur_postings = cur_dict[word]
+                            if cur_postings[-1][0] != start_doc_id + doc_num:
+                                # register a word in this document for the first time
+                                cur_postings.append([start_doc_id + doc_num, 1])
+                            else:
+                                # add 1 more occurence in this document
+                                cur_postings[-1][1] += 1
+                        except KeyError:
+                            # register new word and new occurence in the document at the same time
+                            cur_dict[word] = [[start_doc_id + doc_num, 1]]
+                        words_cnt += 1
+                    if sys.getsizeof(cur_dict) > max_block_size:
+                        dict_paths.append(_write_block_to_file(cur_dict, start_doc_id, len(dict_paths)))
+                        cur_dict.clear()
         except UnicodeDecodeError as e:
             print(f"{e} at file {filepath}")
 
@@ -154,12 +180,12 @@ cdef class Dictionary:
         tuple _documents_map
         list _terms_posts
 
-    def __init__(self, str to_index_path):
+    def __init__(self, str to_index_path, str extension = "txt"):
         win32file._setmaxstdio(1024 * 5)
         print(f"Max opened files count set to {win32file._getmaxstdio()}")
 
-        print(f"Searching for *.txt files in directory tree..")
-        files = get_all_txt_files(to_index_path)
+        print(f"Searching for *.{extension} files in {to_index_path}..")
+        files = get_all_files(to_index_path, extension)
         # filepath of documents with ID index indicates
         self._documents_map = tuple(filepath for i, filepath in enumerate(files))
 
